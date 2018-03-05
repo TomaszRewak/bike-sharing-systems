@@ -1,4 +1,5 @@
 /Data analysis/venv/
+/Data analysis/.idea/
 /Resources/
 /Model/.vs/
 *.pyc
