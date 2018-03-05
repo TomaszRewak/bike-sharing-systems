@@ -125,15 +125,17 @@
     <ClCompile Include="test\_.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="decision-making\greedy-load-change.hpp" />
     <ClInclude Include="flow-relocation-scheduling.hpp" />
     <ClInclude Include="flow-relocation-model.hpp" />
+    <ClInclude Include="flow-relocation-simulation.hpp" />
     <ClInclude Include="relocation\relocation-unit.hpp" />
     <ClInclude Include="relocation\relocation-task.hpp" />
-    <ClInclude Include="validation\network-filling-matrix-alteration.hpp" />
-    <ClInclude Include="validation\network-filling-matrix.hpp" />
-    <ClInclude Include="validation\structure\network-filling.hpp" />
-    <ClInclude Include="validation\structure\node-filling-definition.hpp" />
-    <ClInclude Include="validation\structure\node-filling.hpp" />
+    <ClInclude Include="filling\network-filling-matrix-alteration.hpp" />
+    <ClInclude Include="filling\network-filling-matrix.hpp" />
+    <ClInclude Include="filling\structure\network-filling.hpp" />
+    <ClInclude Include="filling\structure\node-filling-definition.hpp" />
+    <ClInclude Include="filling\structure\node-filling.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

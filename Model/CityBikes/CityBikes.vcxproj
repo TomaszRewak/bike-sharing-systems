@@ -130,6 +130,7 @@
     <ClInclude Include="processes\flow-examples.hpp" />
     <ClInclude Include="processes\flow-test.hpp" />
     <ClInclude Include="processes\model-test.hpp" />
+    <ClInclude Include="processes\network-fill-test.hpp" />
     <ClInclude Include="processes\nn-test.hpp" />
     <ClInclude Include="processes\prediction-test.hpp" />
   </ItemGroup>

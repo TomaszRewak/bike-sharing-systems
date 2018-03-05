@@ -4,7 +4,7 @@
 
 #include "node-filling-definition.hpp"
 
-namespace CityBikes::Flow::Validation::Structure
+namespace CityBikes::Flow::Filling::Structure
 {
 	class NodeFilling
 	{
@@ -30,7 +30,7 @@ namespace CityBikes::Flow::Validation::Structure
 		void setFilling(int number, size_t filling)
 		{
 			if (number >= nodeFillingDefinition.minNumber && number <= nodeFillingDefinition.maxNumber)
-				nodeFilling[number] = filling;
+				nodeFilling[number - nodeFillingDefinition.minNumber] = filling;
 		}
 	};
 }

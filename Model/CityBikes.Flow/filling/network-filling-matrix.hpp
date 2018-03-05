@@ -2,9 +2,8 @@
 
 #include "../../CityBikes.Model/flow-distribution-model.hpp"
 #include "structure/network-filling.hpp"
-#include "network-filling-matrix-alteration.hpp"
 
-namespace CityBikes::Flow::Validation
+namespace CityBikes::Flow::Filling
 {
 	class NetworkFillingMatrix
 	{
@@ -59,11 +58,9 @@ namespace CityBikes::Flow::Validation
 			std::reverse(timeFrames.begin(), timeFrames.end());
 		}
 
-		size_t getAboveThreshold(NetworkFillingMatrixAlteration& alteration, size_t timeFrame, size_t node, int threshold)
+		size_t getAboveThreshold(size_t timeFrame, size_t node, int threshold)
 		{
 			size_t count = 0;
-
-			threshold -= alteration.getAlteration(node);
 
 			for (int number = threshold + 1; number <= nodeFillingDefinitions[node].maxNumber; number++)
 				count += timeFrames[timeFrame].getFilling(node, number) * (number - threshold);
@@ -71,11 +68,9 @@ namespace CityBikes::Flow::Validation
 			return count;
 		}
 
-		size_t getBelowThreshold(NetworkFillingMatrixAlteration& alteration, size_t timeFrame, size_t node, int threshold)
+		size_t getBelowThreshold(size_t timeFrame, size_t node, int threshold)
 		{
 			size_t count = 0;
-
-			threshold -= alteration.getAlteration(node);
 
 			for (int number = threshold - 1; number >= nodeFillingDefinitions[node].minNumber; number--)
 				count += timeFrames[timeFrame].getFilling(node, number) * (threshold - number);

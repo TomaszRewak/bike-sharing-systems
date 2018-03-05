@@ -9,13 +9,13 @@ from data.model.time_predictions.time_prediction_request import TimePredictionRe
 
 def download_time_predictions(requests: List[TimePredictionRequest]):
     api_key = 'AIzaSyD_iwBsgQAqVYV4X89hy9oZRbq1cwXaO00'
-    googlemaps_client = googlemaps.Client(api_key)
+    google_maps_client = googlemaps.Client(api_key)
 
     predictions = []
 
     for request in requests:
         response = distance_matrix.distance_matrix(
-            googlemaps_client,
+            google_maps_client,
             (request.origin.latitude, request.origin.longitude),
             (request.destination.latitude, request.destination.longitude),
             mode="driving",

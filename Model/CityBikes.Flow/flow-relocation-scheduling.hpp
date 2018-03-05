@@ -17,6 +17,13 @@ namespace CityBikes::Flow
 			Model::FlowDistributionModel &distributionModel)
 		{
 			Validation::NetworkFillingMatrix fillingMatrix(distributionModel);
+
+			for (size_t i_unit = 0; i_unit < relocationModel.relocationUnits.size(); i_unit++)
+			{
+				auto& unit = relocationModel.relocationUnits[i_unit];
+
+
+			}
 		}
 	};
 }

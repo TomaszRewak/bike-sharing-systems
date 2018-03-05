@@ -2,7 +2,7 @@
 
 #include "node-filling.hpp"
 
-namespace CityBikes::Flow::Validation::Structure
+namespace CityBikes::Flow::Filling::Structure
 {
 	class NetworkFilling
 	{

@@ -5,11 +5,13 @@
     <ClInclude Include="relocation\relocation-task.hpp" />
     <ClInclude Include="relocation\relocation-unit.hpp" />
     <ClInclude Include="flow-relocation-scheduling.hpp" />
-    <ClInclude Include="validation\structure\network-filling.hpp" />
-    <ClInclude Include="validation\structure\node-filling.hpp" />
-    <ClInclude Include="validation\structure\node-filling-definition.hpp" />
-    <ClInclude Include="validation\network-filling-matrix.hpp" />
-    <ClInclude Include="validation\network-filling-matrix-alteration.hpp" />
+    <ClInclude Include="flow-relocation-simulation.hpp" />
+    <ClInclude Include="decision-making\greedy-load-change.hpp" />
+    <ClInclude Include="filling\structure\network-filling.hpp" />
+    <ClInclude Include="filling\structure\node-filling.hpp" />
+    <ClInclude Include="filling\structure\node-filling-definition.hpp" />
+    <ClInclude Include="filling\network-filling-matrix.hpp" />
+    <ClInclude Include="filling\network-filling-matrix-alteration.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\_.cpp" />

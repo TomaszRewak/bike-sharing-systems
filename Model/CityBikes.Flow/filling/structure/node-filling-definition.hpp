@@ -1,6 +1,6 @@
 #pragma once
 
-namespace CityBikes::Flow::Validation::Structure
+namespace CityBikes::Flow::Filling::Structure
 {
 	struct NodeFillingDefinition
 	{

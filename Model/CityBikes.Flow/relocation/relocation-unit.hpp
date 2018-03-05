@@ -4,9 +4,7 @@ namespace CityBikes::Flow::Relocation
 {
 	struct RelocationUnit
 	{
-		float load;
-
-		size_t targetPosition;
-		size_t targetPositionReachTime;
+		float currentLoad;
+		std::vector<size_t> plannedPath;
 	};
 }
