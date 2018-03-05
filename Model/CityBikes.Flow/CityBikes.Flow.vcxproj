@@ -129,7 +129,11 @@
     <ClInclude Include="flow-relocation-model.hpp" />
     <ClInclude Include="relocation\relocation-unit.hpp" />
     <ClInclude Include="relocation\relocation-task.hpp" />
-    <ClInclude Include="validation\task-chain-validator.hpp" />
+    <ClInclude Include="validation\network-filling-matrix-alteration.hpp" />
+    <ClInclude Include="validation\network-filling-matrix.hpp" />
+    <ClInclude Include="validation\structure\network-filling.hpp" />
+    <ClInclude Include="validation\structure\node-filling-definition.hpp" />
+    <ClInclude Include="validation\structure\node-filling.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
