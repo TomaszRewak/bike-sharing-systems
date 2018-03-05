@@ -1,0 +1,7 @@
+/Data analysis/venv/
+/Resources/
+/Model/.vs/
+*.pyc
+/Data analysis/resources/
+Model/Debug/
+Model/Release/
