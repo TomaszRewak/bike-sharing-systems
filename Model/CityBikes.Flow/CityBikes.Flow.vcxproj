@@ -125,10 +125,18 @@
     <ClCompile Include="test\_.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="decision-making\greedy-load-change.hpp" />
-    <ClInclude Include="flow-relocation-scheduling.hpp" />
+    <ClInclude Include="configuration\threshold-configuration.hpp" />
+    <ClInclude Include="decision-making\direction-decision.hpp" />
+    <ClInclude Include="decision-making\direction-greedy-algorithm.hpp" />
+    <ClInclude Include="decision-making\fill-greedy-algorithm.hpp" />
+    <ClInclude Include="decision-making\fill-change-decision.hpp" />
+    <ClInclude Include="relocation\relocation-unit-state.hpp" />
+    <ClInclude Include="scheduling\flow-relocation-schedule-selector.hpp" />
+    <ClInclude Include="scheduling\flow-relocation-schedule.hpp" />
+    <ClInclude Include="scheduling\flow-relocation-scheduler.hpp" />
     <ClInclude Include="flow-relocation-model.hpp" />
     <ClInclude Include="flow-relocation-simulation.hpp" />
+    <ClInclude Include="relocation\relocation-limit.hpp" />
     <ClInclude Include="relocation\relocation-unit.hpp" />
     <ClInclude Include="relocation\relocation-task.hpp" />
     <ClInclude Include="filling\network-filling-matrix-alteration.hpp" />
@@ -136,6 +144,7 @@
     <ClInclude Include="filling\structure\network-filling.hpp" />
     <ClInclude Include="filling\structure\node-filling-definition.hpp" />
     <ClInclude Include="filling\structure\node-filling.hpp" />
+    <ClInclude Include="scheduling\flow-relocation-scheduling-space.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

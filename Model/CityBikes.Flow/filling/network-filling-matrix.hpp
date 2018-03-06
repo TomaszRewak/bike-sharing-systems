@@ -8,14 +8,17 @@ namespace CityBikes::Flow::Filling
 	class NetworkFillingMatrix
 	{
 	private:
+		Model::FlowDistributionModel baseModel;
+
 		std::vector<Structure::NodeFillingDefinition> nodeFillingDefinitions;
 		std::vector<Structure::NetworkFilling> timeFrames;
 
 	public:
-		NetworkFillingMatrix(Model::FlowDistributionModel& model)
+		NetworkFillingMatrix(Model::FlowDistributionModel& model) :
+			baseModel(model)
 		{
-			size_t timeFramesNumber = model.timeFrames.size();
-			size_t nodesNumber = model.timeFrames[0].nodes.size();
+			size_t timeFramesNumber = baseModel.timeFrames.size();
+			size_t nodesNumber = baseModel.nodes;
 
 			nodeFillingDefinitions = std::vector<Structure::NodeFillingDefinition>(nodesNumber);
 
@@ -23,7 +26,7 @@ namespace CityBikes::Flow::Filling
 			{
 				for (size_t node = 0; node < nodesNumber; node++)
 				{
-					int number = std::round(model.timeFrames[timeFrame].nodes[node].value);
+					int number = getNumber(timeFrame, node);
 
 					nodeFillingDefinitions[node].minNumber = std::min(
 						nodeFillingDefinitions[node].minNumber,
@@ -43,7 +46,7 @@ namespace CityBikes::Flow::Filling
 			{
 				for (size_t node = 0; node < nodesNumber; node++)
 				{
-					int number = std::round(model.timeFrames[timeFrame].nodes[node].value);
+					int number = getNumber(timeFrame, node);
 
 					networkFilling.setFilling(
 						node,
@@ -58,8 +61,16 @@ namespace CityBikes::Flow::Filling
 			std::reverse(timeFrames.begin(), timeFrames.end());
 		}
 
+		int getNumber(size_t timeFrame, size_t node)
+		{
+			return std::round(baseModel.timeFrames[timeFrame].nodes[node].value);
+		}
+
 		size_t getAboveThreshold(size_t timeFrame, size_t node, int threshold)
 		{
+			if (timeFrame > timeFrames.size())
+				return 0;
+
 			size_t count = 0;
 
 			for (int number = threshold + 1; number <= nodeFillingDefinitions[node].maxNumber; number++)
@@ -70,12 +81,30 @@ namespace CityBikes::Flow::Filling
 
 		size_t getBelowThreshold(size_t timeFrame, size_t node, int threshold)
 		{
+			if (timeFrame > timeFrames.size())
+				return 0;
+
 			size_t count = 0;
 
 			for (int number = threshold - 1; number >= nodeFillingDefinitions[node].minNumber; number--)
 				count += timeFrames[timeFrame].getFilling(node, number) * (threshold - number);
 
 			return count;
+		}
+
+		Structure::NodeFillingDefinition getNodeFillingDefinition(size_t node)
+		{
+			return nodeFillingDefinitions[node];
+		}
+
+		size_t startFrame()
+		{
+			return baseModel.startFrame;
+		}
+
+		size_t nodes()
+		{
+			return baseModel.nodes;
 		}
 	};
 }

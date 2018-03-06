@@ -25,5 +25,10 @@ namespace CityBikes::Data::Flow
 		{
 			return stations[source].flowDuration(destination, timeFrame);
 		}
+
+		size_t nodesNumber()
+		{
+			return stations.size();
+		}
 	};
 }

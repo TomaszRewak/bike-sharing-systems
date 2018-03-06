@@ -4,14 +4,23 @@
     <ClInclude Include="flow-relocation-model.hpp" />
     <ClInclude Include="relocation\relocation-task.hpp" />
     <ClInclude Include="relocation\relocation-unit.hpp" />
-    <ClInclude Include="flow-relocation-scheduling.hpp" />
     <ClInclude Include="flow-relocation-simulation.hpp" />
-    <ClInclude Include="decision-making\greedy-load-change.hpp" />
     <ClInclude Include="filling\structure\network-filling.hpp" />
     <ClInclude Include="filling\structure\node-filling.hpp" />
     <ClInclude Include="filling\structure\node-filling-definition.hpp" />
     <ClInclude Include="filling\network-filling-matrix.hpp" />
     <ClInclude Include="filling\network-filling-matrix-alteration.hpp" />
+    <ClInclude Include="configuration\threshold-configuration.hpp" />
+    <ClInclude Include="relocation\relocation-limit.hpp" />
+    <ClInclude Include="scheduling\flow-relocation-scheduler.hpp" />
+    <ClInclude Include="scheduling\flow-relocation-scheduling-space.hpp" />
+    <ClInclude Include="scheduling\flow-relocation-schedule.hpp" />
+    <ClInclude Include="decision-making\fill-change-decision.hpp" />
+    <ClInclude Include="decision-making\fill-greedy-algorithm.hpp" />
+    <ClInclude Include="decision-making\direction-greedy-algorithm.hpp" />
+    <ClInclude Include="decision-making\direction-decision.hpp" />
+    <ClInclude Include="relocation\relocation-unit-state.hpp" />
+    <ClInclude Include="scheduling\flow-relocation-schedule-selector.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\_.cpp" />
