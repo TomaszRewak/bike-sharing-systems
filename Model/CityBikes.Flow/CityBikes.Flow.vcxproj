@@ -132,7 +132,8 @@
     <ClInclude Include="decision-making\fill-change-decision.hpp" />
     <ClInclude Include="relocation\relocation-unit-state.hpp" />
     <ClInclude Include="scheduling\flow-relocation-schedule-selector.hpp" />
-    <ClInclude Include="scheduling\flow-relocation-schedule.hpp" />
+    <ClInclude Include="scheduling\schedule\flow-relocation-schedule-step.hpp" />
+    <ClInclude Include="scheduling\schedule\flow-relocation-schedule.hpp" />
     <ClInclude Include="scheduling\flow-relocation-scheduler.hpp" />
     <ClInclude Include="flow-relocation-model.hpp" />
     <ClInclude Include="flow-relocation-simulation.hpp" />

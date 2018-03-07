@@ -2,13 +2,15 @@
 
 #include <vector>
 
-namespace CityBikes::Flow::Scheduling
+#include "flow-relocation-schedule-step.hpp"
+
+namespace CityBikes::Flow::Scheduling::Schedule
 {
 	struct FlowRelocationSchedule
 	{
 		/// <summary> The higher the score - the better </summary>
 		int score = 0;
 
-		std::vector<size_t> route;
+		std::vector<FlowRelocationScheduleStep> steps;
 	};
 }

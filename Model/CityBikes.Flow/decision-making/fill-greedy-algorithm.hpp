@@ -37,10 +37,9 @@ namespace CityBikes::Flow::DecisionMaking
 
 		/// <summary> Returns the best decision that's based on greedy scoring </summary>
 		FillChangeDecision makeDecision(
-			Filling::NetworkFillingMatrixAlteration alteration, 
-			size_t timeFrame, size_t node, 
-			Relocation::RelocationLimit relocationLimit)
-		{
+			Filling::NetworkFillingMatrixAlteration& alteration,
+			Relocation::RelocationUnit& relocationUnit
+		) {
 			// Adjust relocation limit
 
 			auto nodeFillingDefinition = alteration.getNodeFillingDefinition(node);

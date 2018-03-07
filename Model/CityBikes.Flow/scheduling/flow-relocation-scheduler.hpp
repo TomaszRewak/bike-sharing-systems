@@ -4,40 +4,40 @@
 #include "../relocation/relocation-task.hpp"
 #include "../../CityBikes.Model/flow-distribution-model.hpp"
 #include "../filling/network-filling-matrix.hpp"
+#include "../decision-making/fill-greedy-algorithm.hpp"
 
 namespace CityBikes::Flow::Scheduling
 {
 	class FlowRelocationScheduler
 	{
+	private:
+		DecisionMaking::FillGreedyAlgorithm fillGreedyAlgorithm;
+
 	public:
-		/// <summary> Make best decisions for a given (current) time frame </summary>
-		void schedule(
+		/// <summary> Make best decisions for a given (current) time frame. Returns fill change for stations </summary>
+		std::vector<int> schedule(
 			FlowRelocationModel &relocationModel,
-			Model::FlowDistributionModel &distributionModel)
+			Model::FlowDistributionModel distributionModel)
 		{
-			// Prepare simulation data
+			std::vector<int> fillChanges(distributionModel.nodes, 0);
 
-			Filling::NetworkFillingMatrix fillingMatrix(distributionModel);
+			// Check if any relocation unit is awaiting
 
-			// TODO: Check if any relocation unit is awaiting
+			bool hasAwaitingUnits = false;
+			for (auto& relocationUnit : relocationModel.relocationUnits)
+				if (relocationUnit.timeUntilAvailable == 0)
+					hasAwaitingUnits = true;
 
-			// Apply ongoing relocations
+			if (!hasAwaitingUnits)
+				return fillChanges;
+
+			// Schedule relocations
 
 			for (auto& relocationUnit : relocationModel.relocationUnits)
 			{
-				if (relocationUnit.positionReachTime <= relocationModel.timeFrame)
-					continue;
-
-				applyRelocationUnitRoute(fillingMatrix, relocationUnit);
 			}
 
 			// Schedule new relocations
-		}
-	private:
-		/// <summary> Changes the NetworkFillingMatrix based on already established relocation unit route </summary>
-		void applyRelocationUnitRoute(Filling::NetworkFillingMatrix& fillingMatrix, Relocation::RelocationUnit& relocationUnit)
-		{
-
 		}
 	};
 }

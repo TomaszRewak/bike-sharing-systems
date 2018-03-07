@@ -7,6 +7,9 @@ namespace CityBikes::Flow::Filling
 {
 	class NetworkFillingMatrix
 	{
+	public:
+		const size_t nodes;
+
 	private:
 		Model::FlowDistributionModel baseModel;
 
@@ -15,10 +18,13 @@ namespace CityBikes::Flow::Filling
 
 	public:
 		NetworkFillingMatrix(Model::FlowDistributionModel& model) :
-			baseModel(model)
+			baseModel(model),
+			nodes(model.nodes)
 		{
 			size_t timeFramesNumber = baseModel.timeFrames.size();
 			size_t nodesNumber = baseModel.nodes;
+
+			// compute node limits
 
 			nodeFillingDefinitions = std::vector<Structure::NodeFillingDefinition>(nodesNumber);
 
@@ -39,6 +45,8 @@ namespace CityBikes::Flow::Filling
 					);
 				}
 			}
+
+			// compute node fillings
 
 			Structure::NetworkFilling networkFilling(nodeFillingDefinitions);
 
@@ -95,16 +103,6 @@ namespace CityBikes::Flow::Filling
 		Structure::NodeFillingDefinition getNodeFillingDefinition(size_t node)
 		{
 			return nodeFillingDefinitions[node];
-		}
-
-		size_t startFrame()
-		{
-			return baseModel.startFrame;
-		}
-
-		size_t nodes()
-		{
-			return baseModel.nodes;
 		}
 	};
 }

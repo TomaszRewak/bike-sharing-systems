@@ -14,13 +14,14 @@
     <ClInclude Include="relocation\relocation-limit.hpp" />
     <ClInclude Include="scheduling\flow-relocation-scheduler.hpp" />
     <ClInclude Include="scheduling\flow-relocation-scheduling-space.hpp" />
-    <ClInclude Include="scheduling\flow-relocation-schedule.hpp" />
     <ClInclude Include="decision-making\fill-change-decision.hpp" />
     <ClInclude Include="decision-making\fill-greedy-algorithm.hpp" />
     <ClInclude Include="decision-making\direction-greedy-algorithm.hpp" />
     <ClInclude Include="decision-making\direction-decision.hpp" />
     <ClInclude Include="relocation\relocation-unit-state.hpp" />
     <ClInclude Include="scheduling\flow-relocation-schedule-selector.hpp" />
+    <ClInclude Include="scheduling\schedule\flow-relocation-schedule.hpp" />
+    <ClInclude Include="scheduling\schedule\flow-relocation-schedule-step.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\_.cpp" />

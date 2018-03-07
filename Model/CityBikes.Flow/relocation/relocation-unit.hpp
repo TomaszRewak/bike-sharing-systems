@@ -6,17 +6,18 @@ namespace CityBikes::Flow::Relocation
 {
 	struct RelocationUnit
 	{
-		/// <summary> In which time frame the current position will be reached. If not yet reached, relocation unit cannot be used </summary>
-		size_t positionReachTime = 0;
+		/// <summary> The position given relocation unit is currenly on or is heading to </summary>
+		size_t position;
+
+		/// <summary> After how many time frames the position will be reached </summary>
+		size_t timeUntilAvailable = 0;
 
 		/// <summary> Current state of the relocation unit </summary>
 		RelocationUnitState state;
 
-		/// <summary> Next nodes to be visited by this relocation unit </summary>
-		std::vector<size_t> route;
-
-		RelocationUnit(size_t maxLoad, size_t currentPosition) :
-			state(maxLoad, currentPosition)
+		RelocationUnit(size_t maxLoad, size_t position) :
+			state(maxLoad),
+			position(position)
 		{ }
 	};
 }

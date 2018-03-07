@@ -23,6 +23,8 @@ namespace CityBikes::Data::Flow
 
 		size_t flowDuration(size_t source, size_t destination, size_t timeFrame)
 		{
+			throw "Flow duration must be time invarient - time frames is number of time frames after NOW";
+
 			return stations[source].flowDuration(destination, timeFrame);
 		}
 

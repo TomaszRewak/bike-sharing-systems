@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 namespace CityBikes::Model::Structure
 {
 	struct NetworkNode

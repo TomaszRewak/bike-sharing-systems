@@ -18,20 +18,10 @@ namespace CityBikes::Flow::Filling
 			nodeAlterations(matrix.nodes())
 		{ }
 
-		void alter(size_t node, int by)
-		{
-			nodeAlterations[node] += by;
-		}
-
-		int getAlteration(size_t node)
+		int& operator[](size_t node)
 		{
 			return nodeAlterations[node];
 		}
-
-		void setAlteration(size_t node, int value)
-		{
-			nodeAlterations[node] = value;
-;		}
 
 		int getNumber(size_t timeFrame, size_t node)
 		{

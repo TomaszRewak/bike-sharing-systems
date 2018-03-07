@@ -22,8 +22,7 @@ namespace CityBikes::Flow::DecisionMaking
 
 		DirectionDecision getDecision(
 			Filling::NetworkFillingMatrixAlteration& alteration,
-			Relocation::RelocationUnitState relocationUnit,
-			size_t startFrame, size_t timeFrame)
+			Relocation::RelocationUnit& relocationUnit)
 		{
 			// Produce possible decisions
 
@@ -32,9 +31,9 @@ namespace CityBikes::Flow::DecisionMaking
 			for (size_t node = 0; node < flowMatrix.nodesNumber(); node++)
 			{
 				size_t transitionTime = flowMatrix.flowDuration(
-					relocationUnit.currentPosition,
+					relocationUnit.position,
 					node,
-					startFrame + timeFrame
+					relocationUnit.timeUntilAvailable
 				);
 
 				size_t score = fillGreedyAlgorithm.makeDecision(

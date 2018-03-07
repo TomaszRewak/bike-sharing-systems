@@ -6,11 +6,10 @@ namespace CityBikes::Flow::Relocation
 {
 	struct RelocationUnitState
 	{
-		size_t currentPosition;
 		size_t currentLoad;
 		size_t maxLoad;
 
-		RelocationUnitState(size_t maxLoad, size_t currentPosition) :
+		RelocationUnitState(size_t maxLoad) :
 			maxLoad(maxLoad)
 		{ }
 
