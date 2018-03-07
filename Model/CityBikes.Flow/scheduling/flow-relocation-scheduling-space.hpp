@@ -48,16 +48,18 @@ namespace CityBikes::Flow::Scheduling
 				relocationUnit
 			);
 
-			schedule.steps.push_back(Schedule::FlowRelocationScheduleStep(
+			auto firstStep = Schedule::FlowRelocationScheduleStep(
 				relocationUnit.position,
 				bestFirstDecision.fillChange,
 				relocationUnit.timeUntilAvailable
-			));
+			);
+
+			schedule.steps.push_back(firstStep);
 
 			// Apply changes
 
-			relocationUnit.state.currentLoad -= bestFirstDecision.fillChange;
-			alteration[relocationUnit.position] += bestFirstDecision.fillChange;
+			firstStep.applyOn(relocationUnit);
+			firstStep.applyOn(alteration);
 
 			// make other decisions
 
@@ -70,22 +72,19 @@ namespace CityBikes::Flow::Scheduling
 					relocationUnit
 				);
 
-				// Apply changes
-
-				relocationUnit.state.currentLoad -= directionDecision.fillChange;
-				alteration[relocationUnit.position] += directionDecision.fillChange;
-
-				relocationUnit.position = directionDecision.direction;
-				relocationUnit.timeUntilAvailable += directionDecision.flowDuration;
-
-				// Apply direction decision
-
-				schedule.score += directionDecision.score;
-				schedule.steps.push_back(Schedule::FlowRelocationScheduleStep(
+				auto step = Schedule::FlowRelocationScheduleStep(
 					relocationUnit.position,
 					directionDecision.fillChange,
 					relocationUnit.timeUntilAvailable
-				));
+				);
+
+				schedule.score += directionDecision.score;
+				schedule.steps.push_back(step);
+
+				// Apply changes
+
+				step.applyOn(relocationUnit);
+				step.applyOn(alteration);
 			}
 
 			return schedule;
