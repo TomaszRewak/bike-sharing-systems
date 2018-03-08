@@ -1,30 +1,28 @@
 #pragma once
 
-#include "flow-station.hpp"
+#include "structure/flow-station.hpp"
 
 #include <vector>
 
 namespace CityBikes::Data::Flow
 {
-	class FlowMatrix
+	class FlowMatrix // TODO: change to full matrix instaed of collection of constraints
 	{
 	private:
-		std::vector<FlowStation> stations;
+		std::vector<Structure::FlowStation> stations;
 
 	public:
 		FlowMatrix(size_t stations):
-			stations(stations, FlowStation(stations))
+			stations(stations, Structure::FlowStation(stations))
 		{ }
 
-		void addConstraint(size_t source, size_t destination, FlowConstraint constraint)
+		void addConstraint(size_t source, size_t destination, Structure::FlowConstraint constraint)
 		{
 			stations[source].addConstraint(destination, constraint);
 		}
 
-		size_t flowDuration(size_t source, size_t destination, size_t timeFrame)
+		size_t flowDuration(size_t source, size_t destination, size_t timeFrame) const
 		{
-			throw "Flow duration must be time invarient - time frames is number of time frames after NOW";
-
 			return stations[source].flowDuration(destination, timeFrame);
 		}
 

@@ -6,8 +6,12 @@
 
 namespace CityBikes::Flow::Filling
 {
+	/// <summary> Changes the fillness of nodes for all time frames simultaneously without a need for a recalculation </summary>
 	class NetworkFillingMatrixAlteration
 	{
+	public:
+		const size_t nodes;
+
 	private:
 		NetworkFillingMatrix & matrix;
 		std::vector<int> nodeAlterations;
@@ -15,7 +19,8 @@ namespace CityBikes::Flow::Filling
 	public:
 		NetworkFillingMatrixAlteration(NetworkFillingMatrix & matrix) :
 			matrix(matrix),
-			nodeAlterations(matrix.nodes())
+			nodeAlterations(matrix.nodes, 0),
+			nodes(matrix.nodes)
 		{ }
 
 		int& operator[](size_t node)
@@ -40,16 +45,6 @@ namespace CityBikes::Flow::Filling
 			threshold -= nodeAlterations[node];
 
 			return matrix.getBelowThreshold(timeFrame, node, threshold);
-		}
-
-		Structure::NodeFillingDefinition getNodeFillingDefinition(size_t node)
-		{
-			auto nodeFillingDefinition = matrix.getNodeFillingDefinition(node);
-
-			nodeFillingDefinition.minNumber += nodeAlterations[node];
-			nodeFillingDefinition.maxNumber += nodeAlterations[node];
-
-			return nodeFillingDefinition;
 		}
 	};
 }

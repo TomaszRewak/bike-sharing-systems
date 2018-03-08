@@ -1,72 +1,93 @@
 #pragma once
 
-#include "direction-decision.hpp"
+#include "decision/scored-relocation-operation.hpp"
 #include "../relocation/relocation-unit.hpp"
-#include "../../CityBikes.Data/flow/flow-matrix.hpp"
+#include "../../CityBikes.Data/flow/flow-matrix-offset.hpp"
 #include "fill-greedy-algorithm.hpp"
+
+#include <tuple>
 
 namespace CityBikes::Flow::DecisionMaking
 {
-	/// <summary> Makes a greedy decision about the direction relocation unit should take based on greedy fill estimation </summary>
+	/// <summary> Makes a greedy decision about the direction relocation unit should take based on greedy fill estimation of the nest step </summary>
 	class DirectionGreedyAlgorithm
 	{
 	private:
-		Data::Flow::FlowMatrix& flowMatrix;
-		FillGreedyAlgorithm& fillGreedyAlgorithm;
+		const Data::Flow::FlowMatrixOffset& flowMatrix;
+		const FillGreedyAlgorithm& fillGreedyAlgorithm;
 
 	public:
-		DirectionGreedyAlgorithm(Data::Flow::FlowMatrix& flowMatrix, FillGreedyAlgorithm& fillGreedyAlgorithm) :
+		DirectionGreedyAlgorithm(const Data::Flow::FlowMatrixOffset& flowMatrix, const FillGreedyAlgorithm& fillGreedyAlgorithm) :
 			flowMatrix(flowMatrix),
 			fillGreedyAlgorithm(fillGreedyAlgorithm)
 		{ }
 
-		DirectionDecision getDecision(
+		std::pair<Decision::ScoredRelocationOperation, Decision::ScoredRelocationOperation> getDecision(
 			Filling::NetworkFillingMatrixAlteration& alteration,
 			Relocation::RelocationUnit& relocationUnit)
 		{
-			// Produce possible decisions
+			// Produce all possible decisions - relocation to all nodes
 
-			std::vector<DirectionDecision> possibleDecisions;
+			std::vector<std::pair<Decision::ScoredRelocationOperation, Decision::ScoredRelocationOperation>> possibleDecisions;
 
-			for (size_t node = 0; node < flowMatrix.nodesNumber(); node++)
+			for (size_t node = 0; node < alteration.nodes; node++)
 			{
-				size_t transitionTime = flowMatrix.flowDuration(
-					relocationUnit.position,
-					node,
-					relocationUnit.timeUntilAvailable
-				);
+				auto operations = prepareOperations(alteration, relocationUnit, node);
 
-				size_t score = fillGreedyAlgorithm.makeDecision(
-					alteration,
-					timeFrame + transitionTime,
-					node,
-					relocationUnit.getRelocationLimit()
-				).score;
-
-				possibleDecisions.push_back(DirectionDecision(
-					node,
-					transitionTime,
-					score
-				));
+				possibleDecisions.push_back(operations);
 			}
 
 			// Find a sum of all scores and pick a random number in a middle (reoulette selection)
 
 			size_t scoreCount = 0;
 			for (auto& possibleDecision : possibleDecisions)
-				scoreCount += possibleDecision.score;
+				scoreCount += possibleDecision.second.score;
 
-			int selectedScore = std::rand() % scoreCount;
+			if (scoreCount == 0)
+				return prepareOperations(alteration, relocationUnit, relocationUnit.currentOperation.destination, 1);
+
 			size_t selectedDecision = 0;
-			while (selectedScore > possibleDecisions[selectedDecision].score)
+			size_t selectedScore = std::rand() % scoreCount;
+
+			while (selectedScore > possibleDecisions[selectedDecision].second.score)
 			{
-				selectedScore -= possibleDecisions[selectedDecision].score;
+				selectedScore -= possibleDecisions[selectedDecision].second.score;
 				selectedDecision++;
 			}
 
 			// Return best decision
 
 			return possibleDecisions[selectedDecision];
+		}
+
+	private:
+		std::pair<Decision::ScoredRelocationOperation, Decision::ScoredRelocationOperation> prepareOperations(
+			Filling::NetworkFillingMatrixAlteration& alteration,
+			Relocation::RelocationUnit relocationUnit,
+			size_t targetNode,
+			size_t minTransitionTime = 0)
+		{
+			size_t transitionTime = flowMatrix.flowDuration(
+				relocationUnit.currentOperation.destination,
+				targetNode,
+				relocationUnit.currentOperation.remainingTime
+			);
+
+			transitionTime = std::max(minTransitionTime, transitionTime);
+
+			auto moveOperation = Decision::ScoredRelocationOperation(
+				Relocation::RelocationOperation(targetNode, 0, transitionTime),
+				0
+			);
+
+			relocationUnit.schedule(moveOperation.operation);
+
+			auto fillOperation = fillGreedyAlgorithm.makeDecision(
+				alteration,
+				relocationUnit
+			);
+
+			return std::make_pair(moveOperation, fillOperation);
 		}
 	};
 }

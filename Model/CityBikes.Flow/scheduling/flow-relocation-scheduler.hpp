@@ -1,43 +1,70 @@
 #pragma once
 
 #include "../flow-relocation-model.hpp"
-#include "../relocation/relocation-task.hpp"
 #include "../../CityBikes.Model/flow-distribution-model.hpp"
 #include "../filling/network-filling-matrix.hpp"
 #include "../decision-making/fill-greedy-algorithm.hpp"
+#include "space/flow-relocation-schedule-selector.hpp"
 
 namespace CityBikes::Flow::Scheduling
 {
 	class FlowRelocationScheduler
 	{
 	private:
-		DecisionMaking::FillGreedyAlgorithm fillGreedyAlgorithm;
+		Space::FlowRelocationScheduleSelector& selector;
 
 	public:
+		FlowRelocationScheduler(Space::FlowRelocationScheduleSelector& selector) :
+			selector(selector)
+		{ }
+
 		/// <summary> Make best decisions for a given (current) time frame. Returns fill change for stations </summary>
-		std::vector<int> schedule(
-			FlowRelocationModel &relocationModel,
+		std::vector<std::vector<Relocation::RelocationOperation>> schedule(
+			const FlowRelocationModel &relocationModel,
 			Model::FlowDistributionModel distributionModel)
 		{
-			std::vector<int> fillChanges(distributionModel.nodes, 0);
-
-			// Check if any relocation unit is awaiting
-
-			bool hasAwaitingUnits = false;
-			for (auto& relocationUnit : relocationModel.relocationUnits)
-				if (relocationUnit.timeUntilAvailable == 0)
-					hasAwaitingUnits = true;
-
-			if (!hasAwaitingUnits)
-				return fillChanges;
+			std::vector<std::vector<Relocation::RelocationOperation>> result;
 
 			// Schedule relocations
 
-			for (auto& relocationUnit : relocationModel.relocationUnits)
+			for (const auto& relocationUnit : relocationModel.relocationUnits)
 			{
+				alterDistributionModel(distributionModel, relocationUnit);
+
+				auto operations = selector.getRoute(relocationUnit);
+
+				alterDistributionModel(distributionModel, relocationUnit, operations);
+
+				result.push_back(operations);
 			}
 
-			// Schedule new relocations
+			// return result
+
+			return result;
+		}
+
+	private:
+		void alterDistributionModel(
+			Model::FlowDistributionModel& distributionModel,
+			Relocation::RelocationUnit relocationUnit,
+			std::vector<Relocation::RelocationOperation>& operations)
+		{
+			for (const auto& operation : operations)
+			{
+				relocationUnit.schedule(operation);
+
+				alterDistributionModel(distributionModel, relocationUnit);
+			}
+		}
+
+		void alterDistributionModel(
+			Model::FlowDistributionModel& distributionModel,
+			const Relocation::RelocationUnit& relocationUnit)
+		{
+			distributionModel.alter(
+				relocationUnit.currentOperation.remainingTime,
+				relocationUnit.currentOperation.destination,
+				relocationUnit.currentOperation.destinationFillChange);
 		}
 	};
 }

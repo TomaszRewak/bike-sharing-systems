@@ -41,5 +41,14 @@
     <ClInclude Include="data\flow-target.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="validation\task-chain-validator.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="configuration\flow-distribution-model-simulation-configuration.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="memory\flow-distribution-model-memory.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

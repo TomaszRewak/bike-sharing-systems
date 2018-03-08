@@ -1,6 +1,6 @@
 #pragma once
 
-namespace CityBikes::Data::Flow
+namespace CityBikes::Data::Flow::Structure
 {
 	struct FlowConstraint
 	{

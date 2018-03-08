@@ -125,11 +125,13 @@
     <ClCompile Include="test\_.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="configuration\flow-distribution-model-simulation-configuration.hpp" />
     <ClInclude Include="data\flow-action.hpp" />
     <ClInclude Include="data\flow-instance.hpp" />
     <ClInclude Include="data\flow-target.hpp" />
     <ClInclude Include="flow-distribution-model-simulation.hpp" />
     <ClInclude Include="flow-distribution-model.hpp" />
+    <ClInclude Include="memory\flow-distribution-model-memory.hpp" />
     <ClInclude Include="structure\network-node.hpp" />
     <ClInclude Include="structure\network-state.hpp" />
     <ClInclude Include="validation\task-chain-validator.hpp" />

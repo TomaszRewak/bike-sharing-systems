@@ -51,7 +51,7 @@ namespace CityBikes::Data::Flow::Utils
 
 						for (size_t i = 0; i < constraintsNumber; i++)
 						{
-							FlowConstraint constraint;
+							Structure::FlowConstraint constraint;
 
 							std::tm startTime;
 							file >> std::get_time(&startTime, "%H:%M");
@@ -68,7 +68,7 @@ namespace CityBikes::Data::Flow::Utils
 
 				for (size_t s = 0; s < stationsNumber; s++)
 				{
-					FlowConstraint constraint;
+					Structure::FlowConstraint constraint;
 
 					constraint.flowDuration = 1;
 					constraint.timeFrame = 1;

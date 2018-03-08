@@ -2,12 +2,12 @@
 
 #include "flow-relocation-scheduling-space.hpp"
 
-namespace CityBikes::Flow::Scheduling
+namespace CityBikes::Flow::Scheduling::Space
 {
 	class FlowRelocationScheduleSelector
 	{
 	private:
-		FlowRelocationSchedulingSpace space;
+		FlowRelocationSchedulingSpace& space;
 		size_t searchSize;
 
 	public:
@@ -17,23 +17,19 @@ namespace CityBikes::Flow::Scheduling
 		{ }
 
 		/// <summary> Looks through n random examples to find the best one </summary>
-		std::vector<size_t> getRoute(Relocation::RelocationUnit& relocationUnit)
+		std::vector<Relocation::RelocationOperation> getRoute(const Relocation::RelocationUnit& relocationUnit)
 		{
-			std::vector<size_t> bestRoute;
-			int bestRouteScore = std::numeric_limits<int>::min();
+			Schedule::FlowRelocationSchedule bestSchedule;
 
 			for (size_t i = 0; i < searchSize; i++)
 			{
 				auto candidate = space.getNext(relocationUnit);
 
-				if (candidate.score > bestRouteScore)
-				{
-					bestRouteScore = candidate.score;
-					bestRoute = candidate.route;
-				}
+				if (candidate.score > bestSchedule.score)
+					bestSchedule = candidate;
 			}
 
-			return bestRoute;
+			return bestSchedule.operations;
 		}
 	};
 }

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "flow-relocation-schedule-step.hpp"
+#include "../../decision-making/decision/scored-relocation-operation.hpp"
 
 namespace CityBikes::Flow::Scheduling::Schedule
 {
@@ -11,6 +11,13 @@ namespace CityBikes::Flow::Scheduling::Schedule
 		/// <summary> The higher the score - the better </summary>
 		int score = 0;
 
-		std::vector<FlowRelocationScheduleStep> steps;
+		std::vector<Relocation::RelocationOperation> operations;
+
+		void add(DecisionMaking::Decision::ScoredRelocationOperation& scoredOperation)
+		{
+			operations.push_back(scoredOperation.operation);
+
+			score += scoredOperation.score;
+		}
 	};
 }

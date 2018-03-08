@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace CityBikes::Data::Flow
+namespace CityBikes::Data::Flow::Structure
 {
 	class FlowConnection
 	{
@@ -17,7 +17,7 @@ namespace CityBikes::Data::Flow
 			return constraints.size() > 0;
 		}
 
-		size_t flowDuration(size_t timeFrame)
+		size_t flowDuration(size_t timeFrame) const
 		{
 			if (timeFrame <= constraints.begin()->timeFrame)
 				return constraints.begin()->flowDuration;

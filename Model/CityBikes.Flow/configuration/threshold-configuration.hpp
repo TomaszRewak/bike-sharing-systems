@@ -7,5 +7,10 @@ namespace CityBikes::Flow::Configuration
 	{
 		int minValue;
 		int maxValue;
+
+		ThresholdConfiguration(int minValue, int maxValue) :
+			minValue(minValue),
+			maxValue(maxValue)
+		{ }
 	};
 }

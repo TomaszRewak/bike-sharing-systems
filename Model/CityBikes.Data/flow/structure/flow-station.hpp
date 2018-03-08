@@ -2,7 +2,7 @@
 
 #include "flow-connection.hpp"
 
-namespace CityBikes::Data::Flow
+namespace CityBikes::Data::Flow::Structure
 {
 	class FlowStation
 	{
@@ -19,7 +19,7 @@ namespace CityBikes::Data::Flow
 			connections[destination].addConstraint(constraint);
 		}
 
-		size_t flowDuration(size_t destination, size_t timeFrame)
+		size_t flowDuration(size_t destination, size_t timeFrame) const
 		{
 			return connections[destination].flowDuration(timeFrame);
 		}
