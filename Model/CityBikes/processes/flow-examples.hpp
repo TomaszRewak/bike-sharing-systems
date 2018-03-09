@@ -8,22 +8,29 @@
 
 namespace CityBikes::Processes
 {
-	void computeFlowExamples(size_t stations, size_t timeFrames)
+	template<size_t Nodes>
+	void computeFlowExamples(size_t timeFrames)
 	{
 		auto rides = Data::Rides::Utils::RideReader::readData("../../Resources/processed/rides.rides");
 		auto examples = DataProcessing::Rides::RidesMapper::map(rides, timeFrames);
 
 		for (auto &day : examples)
 		{
-			Model::Structure::NetworkState initialState(stations);
+			Model::Structure::NetworkState<Nodes> initialState;
 
 			std::vector<Model::Data::FlowAction> actions;
 			for (auto& flowInstance : day.flowInstances)
 				actions.push_back(Model::Data::FlowAction(flowInstance, 1.));
 
-			Model::FlowDistributionModelSimulation simulation(actions);
+			Model::Configuration::FlowDistributionModelSimulationConfiguration simulationConfiguration(actions);
+			Model::FlowDistributionModelSimulation<Nodes> simulation(
+				simulationConfiguration,
+				initialState,
+				true);
 
-			auto model = simulation.simulate(initialState, 0, timeFrames, true);
+			simulation.runTo(timeFrames);
+
+			auto model = simulation.getModel();
 
 			auto fileName = DataProcessing::Rides::Structure::Day::to_string(day.day);
 			Data::Predictions::Utils::PredictionWriter::writeData(model, "../../Resources/processed/base_predictions/" + fileName);

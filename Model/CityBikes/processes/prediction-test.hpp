@@ -13,9 +13,10 @@
 
 namespace CityBikes::Processes
 {
-	Model::FlowDistributionModel testPredictionPrepareModel(std::vector<DataProcessing::Rides::Structure::RideDayGroup> examples, size_t stations, size_t timeFrames, size_t initialStationSize)
+	template<size_t Nodes>
+	Model::FlowDistributionModel<Nodes> testPredictionPrepareModel(std::vector<DataProcessing::Rides::Structure::RideDayGroup> examples, size_t timeFrames, size_t initialStationSize)
 	{
-		Model::Structure::NetworkState initialState(stations);
+		Model::Structure::NetworkState<Nodes> initialState;
 		for (auto& station : initialState.nodes)
 			station.value = initialStationSize;
 
@@ -24,12 +25,19 @@ namespace CityBikes::Processes
 			for (auto& flowInstance : example.flowInstances)
 				actions.push_back(Model::Data::FlowAction(flowInstance, 1. / examples.size()));
 
-		Model::FlowDistributionModelSimulation simulation(actions);
+		Model::Configuration::FlowDistributionModelSimulationConfiguration simulationConfiguration(actions);
+		Model::FlowDistributionModelSimulation<Nodes> simulation(
+			simulationConfiguration,
+			initialState,
+			false);
 
-		return simulation.simulate(initialState, 0, timeFrames, false);
+		simulation.runTo(timeFrames);
+
+		return simulation.getModel();
 	}
 
-	void testPrediction(size_t stations, size_t timeFrames, size_t initialStationSize, size_t examplesNumber)
+	template<size_t Nodes>
+	void testPrediction(size_t timeFrames, size_t initialStationSize, size_t examplesNumber)
 	{
 		auto rides = Data::Rides::Utils::RideReader::readData("../../Resources/processed/rides.rides");
 		auto features = Data::Features::FeaturesReader::readData("../../Resources/processed/features.features");
@@ -85,15 +93,17 @@ namespace CityBikes::Processes
 				examplesD.push_back(examples[std::rand() % examples.size()]);
 			}
 
-			auto modelA = testPredictionPrepareModel(examplesA, stations, timeFrames, initialStationSize);
-			auto modelB = testPredictionPrepareModel(examplesB, stations, timeFrames, initialStationSize);
-			auto modelC = testPredictionPrepareModel(examplesC, stations, timeFrames, initialStationSize);
-			auto modelD = testPredictionPrepareModel(examplesD, stations, timeFrames, initialStationSize);
+			auto modelA = testPredictionPrepareModel<Nodes>(examplesA, timeFrames, initialStationSize); // base
+			auto modelB = testPredictionPrepareModel<Nodes>(examplesB, timeFrames, initialStationSize); // all
+			auto modelC = testPredictionPrepareModel<Nodes>(examplesC, timeFrames, initialStationSize); // selected
+			auto modelD = testPredictionPrepareModel<Nodes>(examplesD, timeFrames, initialStationSize); // random
 
 			std::cout 
 				<< DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelB) << " " 
 				<< DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelC) << " "
 				<< DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelD) << std::endl;
 		}
+
+		std::getchar();
 	}
 }

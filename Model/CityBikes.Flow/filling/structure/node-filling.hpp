@@ -14,6 +14,9 @@ namespace CityBikes::Flow::Filling::Structure
 		std::vector<size_t> nodeFilling;
 
 	public:
+		NodeFilling()
+		{ }
+
 		NodeFilling(NodeFillingDefinition nodeFillingDefinition):
 			nodeFillingDefinition(nodeFillingDefinition),
 			nodeFilling(nodeFillingDefinition.maxNumber - nodeFillingDefinition.minNumber + 1)

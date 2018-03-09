@@ -10,54 +10,44 @@
 
 namespace CityBikes::Model
 {
+	template<size_t Nodes>
 	class FlowDistributionModelSimulation
 	{
 	private:
 		const Configuration::FlowDistributionModelSimulationConfiguration& configuration;
 
-		const size_t timeFrames;
-
-		size_t timeFrame = 0;
 		size_t currentAction = 0;
 
-		FlowDistributionModel model;
-		Memory::FlowDistributionModelMemory memory;
+		Structure::NetworkState<Nodes> currentState;
+		FlowDistributionModel<Nodes> model;
+		Memory::FlowDistributionModelMemory<Nodes> memory;
 
 		const bool forceFlow;
 
 	public:
 		FlowDistributionModelSimulation(
 			const Configuration::FlowDistributionModelSimulationConfiguration& configuration,
-			Structure::NetworkState initialState,
-			size_t timeFrames,
+			Structure::NetworkState<Nodes> initialState,
 			bool forceFlow
 		) :
 			configuration(configuration),
-			model(initialState),
-			timeFrames(timeFrames),
-			forceFlow(forceFlow),
-			memory(timeFrames, initialState.nodes.size())
+			currentState(initialState),
+			forceFlow(forceFlow)
 		{ }
 
-		FlowDistributionModel getModel() const
+		FlowDistributionModel<Nodes> getModel() const
 		{
 			return model;
 		}
 
-		Structure::NetworkState& getCurrentState()
+		Structure::NetworkState<Nodes>& getCurrentState()
 		{
-			return model.timeFrames[timeFrame];
+			return currentState;
 		}
 
 		void step()
 		{
-			if (timeFrame >= timeFrames)
-				throw "Time frame out of bounds";
-
-			// apply pending returns
-
-			for (size_t node = 0; node < model.nodes; node++)
-				model.timeFrames[timeFrame].nodes[node].value += memory.timeFrames[timeFrame][node];
+			size_t timeFrame = model.timeFrames.size();
 
 			// perform actions
 
@@ -70,26 +60,31 @@ namespace CityBikes::Model
 			{
 				const auto& action = actions[currentAction];
 
-				double getChance = model
-					.timeFrames[action.flowInstance.source.timeFrame]
+				double getChance = currentState
 					.nodes[action.flowInstance.source.node]
 					.get(action.actionProbability, forceFlow);
 
-				if (action.flowInstance.destination.timeFrame < timeFrames)
-					memory.timeFrames[action.flowInstance.destination.timeFrame][action.flowInstance.destination.node] += getChance;
+				memory.add(
+					action.flowInstance.destination.timeFrame, 
+					action.flowInstance.destination.node,
+					getChance);
 			}
 
-			// copy last state
+			// apply pending returns
 
-			auto currentState = getCurrentState();
+			auto pendingReturns = memory.pop(timeFrame);
+
+			for (size_t node = 0; node < Nodes; node++)
+				currentState.nodes[node].value += pendingReturns[node];
+
+			// update model
+
 			model.timeFrames.push_back(currentState);
-
-			timeFrame++;
 		}
 
-		FlowDistributionModel runToEnd()
+		void runTo(size_t timeFrame)
 		{
-			while (timeFrame < timeFrames)
+			while (model.timeFrames.size() < timeFrame)
 				step();
 		}
 	};

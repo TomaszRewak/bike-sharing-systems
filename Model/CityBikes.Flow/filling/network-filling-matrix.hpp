@@ -5,32 +5,27 @@
 
 namespace CityBikes::Flow::Filling
 {
+	template<size_t Nodes>
 	class NetworkFillingMatrix
 	{
-	public:
-		const size_t nodes;
-
 	private:
-		Model::FlowDistributionModel baseModel;
+		Model::FlowDistributionModel<Nodes> baseModel;
 
-		std::vector<Structure::NodeFillingDefinition> nodeFillingDefinitions;
-		std::vector<Structure::NetworkFilling> timeFrames;
+		std::array<Structure::NodeFillingDefinition, Nodes> nodeFillingDefinitions;
+
+		std::vector<Structure::NetworkFilling<Nodes>> timeFrames;
 
 	public:
-		NetworkFillingMatrix(Model::FlowDistributionModel& model) :
-			baseModel(model),
-			nodes(model.nodes)
+		NetworkFillingMatrix(Model::FlowDistributionModel<Nodes>& model) :
+			baseModel(model)
 		{
 			size_t timeFramesNumber = baseModel.timeFrames.size();
-			size_t nodesNumber = baseModel.nodes;
 
 			// compute node limits
 
-			nodeFillingDefinitions = std::vector<Structure::NodeFillingDefinition>(nodesNumber);
-
 			for (size_t timeFrame = 0; timeFrame < timeFramesNumber; timeFrame++)
 			{
-				for (size_t node = 0; node < nodesNumber; node++)
+				for (size_t node = 0; node < Nodes; node++)
 				{
 					int number = getNumber(timeFrame, node);
 
@@ -48,11 +43,11 @@ namespace CityBikes::Flow::Filling
 
 			// compute node fillings
 
-			Structure::NetworkFilling networkFilling(nodeFillingDefinitions);
+			Structure::NetworkFilling<Nodes> networkFilling(nodeFillingDefinitions);
 
 			for (int timeFrame = timeFramesNumber - 1; timeFrame >= 0; timeFrame--)
 			{
-				for (size_t node = 0; node < nodesNumber; node++)
+				for (size_t node = 0; node < Nodes; node++)
 				{
 					int number = getNumber(timeFrame, node);
 
@@ -98,11 +93,6 @@ namespace CityBikes::Flow::Filling
 				count += timeFrames[timeFrame].getFilling(node, number) * (threshold - number);
 
 			return count;
-		}
-
-		Structure::NodeFillingDefinition getNodeFillingDefinition(size_t node)
-		{
-			return nodeFillingDefinitions[node];
 		}
 	};
 }

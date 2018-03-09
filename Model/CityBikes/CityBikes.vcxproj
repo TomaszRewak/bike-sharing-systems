@@ -133,6 +133,7 @@
     <ClInclude Include="processes\network-fill-test.hpp" />
     <ClInclude Include="processes\nn-test.hpp" />
     <ClInclude Include="processes\prediction-test.hpp" />
+    <ClInclude Include="processes\redistribution-test.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

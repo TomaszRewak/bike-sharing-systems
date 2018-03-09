@@ -14,7 +14,8 @@
 
 namespace CityBikes::Processes
 {
-	void testFlow(size_t stations, size_t timeFrames, size_t initialStationSize, size_t examplesNumber)
+	template<size_t Nodes>
+	void testFlow(size_t timeFrames, size_t initialStationSize, size_t examplesNumber)
 	{
 		auto matrices = Data::Flow::Utils::FlowMatricesReader::readData("../../Resources/processed/flow_matrices.flow", stations, timeFrames);
 

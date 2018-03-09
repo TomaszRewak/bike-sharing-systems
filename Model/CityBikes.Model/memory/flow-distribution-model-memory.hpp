@@ -1,15 +1,31 @@
 #pragma once
 
 #include <vector>
+#include <array>
+#include <map>
 
 namespace CityBikes::Model::Memory
 {
-	struct FlowDistributionModelMemory
+	template<size_t Nodes>
+	class FlowDistributionModelMemory
 	{
-		std::vector<std::vector<float>> timeFrames;
+	private:
+		std::map<size_t, std::array<float, Nodes>> timeFrames;
 
-		FlowDistributionModelMemory(size_t timeFrames, size_t nodes):
-			timeFrames(timeFrames, std::vector<float>(nodes, 0))
-		{ }
+	public:
+		void add(size_t timeFrame, size_t node, float value)
+		{
+			timeFrames[timeFrame][node] += value;
+		}
+
+		std::array<float, Nodes> pop(size_t timeFrame)
+		{
+			std::array<float, Nodes> result = timeFrames[timeFrame];
+
+			auto iterator = timeFrames.find(timeFrame);
+			timeFrames.erase(iterator);
+
+			return result;
+		}
 	};
 }

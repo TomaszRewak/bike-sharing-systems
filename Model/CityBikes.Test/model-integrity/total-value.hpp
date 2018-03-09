@@ -4,7 +4,8 @@
 
 namespace CityBikes::Test::ModelIntegrity
 {
-	double computeTotalNumber(Model::Structure::NetworkState& state)
+	template<size_t Nodes>
+	double computeTotalNumber(Model::Structure::NetworkState<Nodes>& state)
 	{
 		double totalValue = 0;
 

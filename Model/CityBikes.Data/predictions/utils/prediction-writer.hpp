@@ -11,12 +11,14 @@ namespace CityBikes::Data::Predictions::Utils
 	class PredictionWriter
 	{
 	private:
-		static void writeHeader(std::ostream& file, Model::FlowDistributionModel& model)
+		template<size_t Nodes>
+		static void writeHeader(std::ostream& file, Model::FlowDistributionModel<Nodes>& model)
 		{
-			file << model.timeFrames[0].nodes.size() << " " << model.timeFrames.size() << std::endl;
+			file << Nodes << " " << model.timeFrames.size() << std::endl;
 		}
 
-		static void writePrediction(std::ostream& file, Model::FlowDistributionModel& model)
+		template<size_t Nodes>
+		static void writePrediction(std::ostream& file, Model::FlowDistributionModel<Nodes>& model)
 		{
 			for (auto& timeFrame : model.timeFrames)
 			{
@@ -30,7 +32,8 @@ namespace CityBikes::Data::Predictions::Utils
 		}
 
 	public:
-		static void writeData(Model::FlowDistributionModel& model, std::experimental::filesystem::path path)
+		template<size_t Nodes>
+		static void writeData(Model::FlowDistributionModel<Nodes>& model, std::experimental::filesystem::path path)
 		{
 			std::ofstream file(path);
 

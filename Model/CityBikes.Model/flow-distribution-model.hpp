@@ -6,21 +6,10 @@
 
 namespace CityBikes::Model
 {
+	template<size_t Nodes>
 	struct FlowDistributionModel
 	{
-		const size_t nodes;
-
-		std::vector<Structure::NetworkState> timeFrames;
-
-		FlowDistributionModel(size_t nodes):
-			nodes(nodes)
-		{ }
-
-		FlowDistributionModel(Structure::NetworkState initialState) :
-			nodes(initialState.nodes.size())
-		{ 
-			timeFrames.push_back(initialState);
-		}
+		std::vector<Structure::NetworkState<Nodes>> timeFrames;
 
 		/// <summary> Alters the state of the network begging a the given time frame. "Forces" all rents (can lead to negative load). </summary>
 		void alter(size_t timeFrame, size_t node, double value)
@@ -29,9 +18,9 @@ namespace CityBikes::Model
 				timeFrames[timeFrame].nodes[node].value += value;
 		}
 
-		FlowDistributionModel getPart(size_t skip) const
+		FlowDistributionModel<Nodes> getPart(size_t skip) const
 		{
-			FlowDistributionModel model(nodes);
+			FlowDistributionModel<Nodes> model;
 
 			for (size_t i = skip; i < timeFrames.size(); i++)
 				model.timeFrames.push_back(timeFrames[i]);

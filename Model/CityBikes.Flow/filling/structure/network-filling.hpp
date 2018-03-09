@@ -2,18 +2,21 @@
 
 #include "node-filling.hpp"
 
+#include <array>
+
 namespace CityBikes::Flow::Filling::Structure
 {
+	template<size_t Nodes>
 	class NetworkFilling
 	{
 	private:
-		std::vector<NodeFilling> nodes;
+		std::array<NodeFilling, Nodes> nodes;
 
 	public:
-		NetworkFilling(std::vector<NodeFillingDefinition>& nodeDefinitons)
+		NetworkFilling(std::array<NodeFillingDefinition, Nodes>& nodeDefinitons)
 		{ 
-			for (auto& nodeDefinition : nodeDefinitons)
-				nodes.push_back(nodeDefinition);
+			for (size_t node = 0; node < Nodes; node++)
+				nodes[node] = nodeDefinitons[node];
 		}
 
 		size_t getFilling(size_t node, int number)

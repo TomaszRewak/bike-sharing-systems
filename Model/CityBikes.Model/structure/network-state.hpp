@@ -1,17 +1,14 @@
 #pragma once
 
-#include <vector>
+#include <array>
 
 #include "network-node.hpp"
 
 namespace CityBikes::Model::Structure
 {
+	template<size_t Nodes>
 	struct NetworkState
 	{
-		std::vector<NetworkNode> nodes;
-
-		NetworkState(size_t nodes) :
-			nodes(nodes)
-		{ }
+		std::array<NetworkNode, Nodes> nodes;
 	};
 }

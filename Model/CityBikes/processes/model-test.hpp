@@ -10,12 +10,13 @@
 
 namespace CityBikes::Processes
 {
-	void testModel(size_t stations, size_t timeFrames, size_t initialStationSize, size_t examplesNumber)
+	template<size_t Nodes>
+	void testModel(size_t timeFrames, size_t initialStationSize, size_t examplesNumber)
 	{
 		auto rides = Data::Rides::Utils::RideReader::readData("../../Resources/processed/rides.rides");
 		auto examples = DataProcessing::Rides::RidesMapper::map(rides, timeFrames);
 
-		Model::Structure::NetworkState initialState(stations);
+		Model::Structure::NetworkState<Nodes> initialState;
 		for (auto& station : initialState.nodes)
 			station.value = initialStationSize;
 
@@ -28,9 +29,17 @@ namespace CityBikes::Processes
 				actions.push_back(Model::Data::FlowAction(flowInstance, 1. / examplesNumber));
 		}
 
-		Model::FlowDistributionModelSimulation simulation(actions);
+		std::cout << "Simulating" << std::endl;
 
-		auto model = simulation.simulate(initialState, 0, timeFrames, false);
+		Model::Configuration::FlowDistributionModelSimulationConfiguration simulationConfiguration(actions);
+		Model::FlowDistributionModelSimulation<Nodes> simulation(
+			simulationConfiguration,
+			initialState,
+			false);
+
+		simulation.runTo(timeFrames);
+
+		auto model = simulation.getModel();
 
 		std::cout << Test::ModelIntegrity::computeTotalNumber(*model.timeFrames.begin()) << std::endl;
 		std::cout << Test::ModelIntegrity::computeTotalNumber(*model.timeFrames.rbegin()) << std::endl;
