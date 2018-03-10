@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from data.model.flow_matrix.flow_connection import FlowConnection
 from data.model.flow_matrix.flow_constraint import FlowConstraint
@@ -47,7 +47,7 @@ def process_flow_station(time_predictions: List[TimePrediction], stations: List[
     ]
 
 
-def process_flow_matrix(time_predictions: List[TimePrediction], stations: List[Station]) -> List[FlowStation]:
+def process_flow_matrix(time_predictions: List[TimePrediction], stations: List[Station]) -> Dict[int, FlowStation]:
     prediction_groups = {
         station.index: [
             time_prediction
@@ -57,13 +57,12 @@ def process_flow_matrix(time_predictions: List[TimePrediction], stations: List[S
         for station in stations
     }
 
-    return [
-        FlowStation(
-            station_index,
+    return {
+        station_index: FlowStation(
             process_flow_station(prediction_group, stations)
         )
         for station_index, prediction_group in prediction_groups.items()
-    ]
+    }
 
 
 def process_flow_matrices(time_predictions: List[TimePrediction], stations: List[Station]) -> List[FlowMatrix]:

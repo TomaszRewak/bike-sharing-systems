@@ -6,8 +6,6 @@ from data.model.stations.station import Station
 
 class FlowStation:
     def __init__(self,
-                 station: int,
                  connections: List[FlowConnection]):
-        self.station = station
         self.connections = connections
 

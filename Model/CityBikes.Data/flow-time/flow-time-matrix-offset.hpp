@@ -1,17 +1,18 @@
 #pragma once
 
-#include "flow-matrix.hpp"
+#include "flow-time-matrix.hpp"
 
-namespace CityBikes::Data::Flow
+namespace CityBikes::Data::FlowTime
 {
+	template<size_t Nodes>
 	class FlowMatrixOffset
 	{
 	private:
-		const FlowMatrix & flowMatrix;
+		const FlowTimeMatrix<Nodes> & flowMatrix;
 		size_t timeOffset;
 
 	public:
-		FlowMatrixOffset(const FlowMatrix& flowMatrix, size_t timeOffset) :
+		FlowMatrixOffset(const FlowTimeMatrix<Nodes>& flowMatrix, size_t timeOffset) :
 			flowMatrix(flowMatrix),
 			timeOffset(timeOffset)
 		{ }

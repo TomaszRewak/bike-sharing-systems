@@ -9,7 +9,6 @@ from data.model.city_network.utils.loader import save_city_network, load_city_ne
 from data.model.distance_functions.utils.loader import save_distance_functions
 from data.model.features.utils.pickler import pickle_offline_features, unpickle_offline_features
 from data.model.features.utils.loader import save_offline_features
-from data.model.flow_matrix.utils.loader import write_flow_matrix
 from data.model.learning_examples.utils.pickler import pickle_learning_examples, unpickle_learning_examples
 from data.model.predictions.utils.loader import load_predictions
 from data.model.raw_rides.utils.loader import load_raw_rides
@@ -17,6 +16,7 @@ from data.model.rides.utils.pickler import pickle_rides
 from data.model.rides.utils.loader import save_rides
 from data.model.stations.utils.loader import load_stations
 from data.model.stations.utils.picker import pickle_station_connections, unpickle_station_connections
+from data.model.time_matrix.utils.loader import write_time_matrices
 from data.model.time_predictions.utils.downloader import download_time_predictions
 from data.model.time_predictions.utils.pickler import pickle_time_predictions, unpickle_time_predictions
 from data.model.weather.utils.loader import load_weather
@@ -27,6 +27,7 @@ from data.processing.learning_examples.learning_examples_grouping import group_l
 from data.processing.learning_examples.learning_examples_processing import process_learning_examples
 from data.processing.features.offline_features_processing import process_offline_features
 from data.processing.rides.rides_processing import process_rides_data
+from data.processing.time_matrix.time_matrix_processing import process_time_matrices
 from data.processing.time_predictions.time_prediction_grouping import group_time_predictions
 from data.processing.time_predictions.time_prediction_request_preparing import prepare_time_prediction_requests
 from learning.nn.nn_learning import learn_distance_nn_function, apply_distance_nn_function
@@ -130,6 +131,7 @@ def learn_nn_distance_function():
 def get_time_predictions():
     # 03 00 00
     # 06 00 00
+    # 07 00 00
     # 07 30 00
     # 08 00 00
     # 08 30 00
@@ -137,6 +139,7 @@ def get_time_predictions():
     # 10 30 00
     # 12 00 00
     # 14 00 00
+    # 13 00 00
     # 15 00 00
     # 15 30 00
     # 16 00 00
@@ -144,6 +147,7 @@ def get_time_predictions():
     # 17 00 00
     # 17 30 00
     # 18 00 00
+    # 19 30 00
     # 21 00 00
     pickle_file = './resources/pickled/predictions.pickle'
     old_predictions = []
@@ -153,8 +157,8 @@ def get_time_predictions():
         old_predictions = unpickle_time_predictions(pickle_file)
 
     times = [
-        datetime(2019, 6, 10, 14, 0, 0),
-        datetime(2019, 6, 15, 14, 0, 0)
+        datetime(2019, 6, 10, 7, 0, 0),
+        datetime(2019, 6, 15, 7, 0, 0)
     ]
 
     stations = load_stations('../resources/raw/rides/stations.csv')
@@ -179,9 +183,10 @@ def prepare_flow_matrix():
     time_predictions = unpickle_time_predictions('./resources/pickled/predictions.pickle')
     stations = load_stations('../resources/raw/rides/stations.csv')
 
-    flow_time_matrices = process_flow_matrices(time_predictions, stations)
+    flow_matrices = process_flow_matrices(time_predictions, stations)
+    time_matrices = process_time_matrices(flow_matrices)
 
-    write_flow_matrix('../resources/processed/flow_matrices.flow', flow_time_matrices)
+    write_time_matrices('../resources/processed/time_matrices.time', time_matrices)
 
 
 def main():
