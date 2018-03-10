@@ -84,7 +84,7 @@ namespace CityBikes::Model
 
 		void runTo(size_t timeFrame)
 		{
-			while (model.timeFrames.size() < timeFrame)
+			while (model.timeFrames.size() <= timeFrame)
 				step();
 		}
 	};

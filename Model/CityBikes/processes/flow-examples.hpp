@@ -19,7 +19,7 @@ namespace CityBikes::Processes
 			Model::Structure::NetworkState<Nodes> initialState;
 
 			std::vector<Model::Data::FlowAction> actions;
-			for (auto& flowInstance : day.flowInstances)
+			for (auto& flowInstance : day.second)
 				actions.push_back(Model::Data::FlowAction(flowInstance, 1.));
 
 			Model::Configuration::FlowDistributionModelSimulationConfiguration simulationConfiguration(actions);
@@ -32,7 +32,7 @@ namespace CityBikes::Processes
 
 			auto model = simulation.getModel();
 
-			auto fileName = DataProcessing::Rides::Structure::Day::to_string(day.day);
+			auto fileName = Data::Common::Day::to_string(day.first);
 			Data::Predictions::Utils::PredictionWriter::writeData(model, "../../Resources/processed/base_predictions/" + fileName);
 		}
 

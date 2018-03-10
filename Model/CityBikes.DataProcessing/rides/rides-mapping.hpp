@@ -1,9 +1,9 @@
 #pragma once
 
-#include "structure/day.hpp"
-#include "structure/ride-day-group.hpp"
 #include "../../CityBikes.Data/rides/ride.hpp"
 #include "../common/time-processing.hpp"
+#include "../../CityBikes.Data/common/day.hpp"
+#include "../../CityBikes.Model/data/flow-instance.hpp"
 
 #include <vector>
 #include <map>
@@ -13,9 +13,9 @@ namespace CityBikes::DataProcessing::Rides
 	class RidesMapper
 	{
 	public:
-		static std::vector<Structure::RideDayGroup> map(std::vector<Data::Rides::Ride>& rides, size_t timeFrames)
+		static std::map<Data::Common::Day, std::vector<Model::Data::FlowInstance>> map(std::vector<Data::Rides::Ride>& rides, size_t timeFrames)
 		{
-			std::map<Structure::Day, std::vector<Model::Data::FlowInstance>> groupedInstances;
+			std::map<Data::Common::Day, std::vector<Model::Data::FlowInstance>> groupedInstances;
 			Common::TimeQuantizer timeQuantizer(timeFrames);
 
 			for (auto& ride : rides)
@@ -37,20 +37,7 @@ namespace CityBikes::DataProcessing::Rides
 				groupedInstances[ride.startTime].push_back(flow);
 			}
 
-			std::vector<Structure::RideDayGroup> result;
-
-			for (auto const&[day, flows] : groupedInstances)
-			{
-				tm time = day;
-				Structure::RideDayGroup group(day);
-
-				group.flowInstances = flows;
-				group.features.dayOfTheWeek = time.tm_wday;
-
-				result.push_back(group);
-			}
-
-			return result;
+			return groupedInstances;
 		}
 	};
 }

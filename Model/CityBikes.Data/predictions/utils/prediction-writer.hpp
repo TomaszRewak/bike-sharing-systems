@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iomanip>
 
-#include "../../CityBikes.Model/flow-distribution-model.hpp"
+#include "../../../CityBikes.Model/flow-distribution-model.hpp"
 
 namespace CityBikes::Data::Predictions::Utils
 {

@@ -2,8 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="rides\rides-mapping.hpp" />
-    <ClInclude Include="rides\structure\ride-day-group.hpp" />
-    <ClInclude Include="rides\structure\day.hpp" />
     <ClInclude Include="prediction\prediction-offset.hpp" />
     <ClInclude Include="common\time-processing.hpp" />
   </ItemGroup>

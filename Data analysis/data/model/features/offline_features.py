@@ -12,9 +12,9 @@ class OfflineFeatures:
 
     def vector(self):
         return [
-            self.day.day,
+            # self.day.day,
             self.day.month,
-            self.day.year,
+            # self.day.year,
             self.day.day_of_the_week,
             self.weather.avg_cloud,
             self.weather.avg_wind,

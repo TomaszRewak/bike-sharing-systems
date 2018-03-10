@@ -14,7 +14,7 @@ namespace CityBikes::DataProcessing::Prediction
 
 			for (size_t node = 0; node < Nodes; node++)
 				for (size_t timeFrame = 0; timeFrame < modelA.timeFrames.size(); timeFrame++)
-					diff += std::pow(modelA.timeFrames[timeFrame].nodes[node].value - modelB.timeFrames[timeFrame].nodes[node].value, 2);
+					diff += std::pow(std::round(modelA.timeFrames[timeFrame].nodes[node].value) - std::round(modelB.timeFrames[timeFrame].nodes[node].value), 2);
 
 			diff /= modelA.timeFrames[0].nodes.size() * modelA.timeFrames.size();
 

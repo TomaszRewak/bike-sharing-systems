@@ -13,6 +13,9 @@
     <ClInclude Include="flow\structure\flow-constraint.hpp" />
     <ClInclude Include="flow\structure\flow-connection.hpp" />
     <ClInclude Include="flow\flow-matrix-offset.hpp" />
+    <ClInclude Include="distance\distance-function.hpp" />
+    <ClInclude Include="common\day.hpp" />
+    <ClInclude Include="distance\utils\distance-functions-reader.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\_.cpp" />

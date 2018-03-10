@@ -4,13 +4,16 @@
 #include <sstream>
 #include <iomanip>
 
-namespace CityBikes::DataProcessing::Rides::Structure
+namespace CityBikes::Data::Common
 {
 	struct Day
 	{
 		int day;
 		int month;
 		int year;
+
+		Day()
+		{ }
 
 		Day(tm time) :
 			day(time.tm_mday),

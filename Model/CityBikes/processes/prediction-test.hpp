@@ -5,7 +5,7 @@
 #include "../../CityBikes.DataProcessing/rides/rides-mapping.hpp"
 #include "../../CityBikes.DataProcessing/prediction/prediction-offset.hpp"
 #include "../../CityBikes.Data/predictions/utils/prediction-writer.hpp"
-#include "../../CityBikes.Data/features/features-reader.hpp"
+#include "../../CityBikes.Data/distance/utils/distance-functions-reader.hpp"
 #include "../../CityBikes.Test/model-integrity/total-value.hpp"
 
 #include <iostream>
@@ -14,7 +14,7 @@
 namespace CityBikes::Processes
 {
 	template<size_t Nodes>
-	Model::FlowDistributionModel<Nodes> testPredictionPrepareModel(std::vector<DataProcessing::Rides::Structure::RideDayGroup> examples, size_t timeFrames, size_t initialStationSize)
+	Model::FlowDistributionModel<Nodes> testPredictionPrepareModel(std::vector<std::vector<Model::Data::FlowInstance>> examples, size_t timeFrames, size_t initialStationSize)
 	{
 		Model::Structure::NetworkState<Nodes> initialState;
 		for (auto& station : initialState.nodes)
@@ -22,7 +22,7 @@ namespace CityBikes::Processes
 
 		std::vector<Model::Data::FlowAction> actions;
 		for (auto& example : examples)
-			for (auto& flowInstance : example.flowInstances)
+			for (auto& flowInstance : example)
 				actions.push_back(Model::Data::FlowAction(flowInstance, 1. / examples.size()));
 
 		Model::Configuration::FlowDistributionModelSimulationConfiguration simulationConfiguration(actions);
@@ -40,68 +40,76 @@ namespace CityBikes::Processes
 	void testPrediction(size_t timeFrames, size_t initialStationSize, size_t examplesNumber)
 	{
 		auto rides = Data::Rides::Utils::RideReader::readData("../../Resources/processed/rides.rides");
-		auto features = Data::Features::FeaturesReader::readData("../../Resources/processed/features.features");
+		auto distanceFunctions = Data::Distance::Utils::DistanceFunctionsReader::readData("../../Resources/learning/nn.model");
 		auto examples = DataProcessing::Rides::RidesMapper::map(rides, timeFrames);
+
+		float comparedToAll = 0;
+		float comparedToEmpty = 0;
 
 		for (auto& example : examples)
 		{
-			std::vector<DataProcessing::Rides::Structure::RideDayGroup> examplesA;
-			std::vector<DataProcessing::Rides::Structure::RideDayGroup> examplesB;
-			std::vector<DataProcessing::Rides::Structure::RideDayGroup> examplesC;
-			std::vector<DataProcessing::Rides::Structure::RideDayGroup> examplesD;
+			std::vector<std::vector<Model::Data::FlowInstance>> examplesA;
+			std::vector<std::vector<Model::Data::FlowInstance>> examplesB;
+			std::vector<std::vector<Model::Data::FlowInstance>> examplesC;
+			std::vector<std::vector<Model::Data::FlowInstance>> examplesD;
+			std::vector<std::vector<Model::Data::FlowInstance>> examplesE;
 
 			{
-				examplesA.push_back(example);
+				examplesA.push_back(example.second);
 			}
 
 			{
 				for (auto& otherExample : examples)
-					if (otherExample.day != example.day)
-						examplesB.push_back(otherExample);
+					if (otherExample.first != example.first)
+						examplesB.push_back(otherExample.second);
 			}
 
 			{
-				auto nn = Prediction::NeuralNetwork::NeuralNetworkReader::read("../../Resources/learning/nn/" + DataProcessing::Rides::Structure::Day::to_string(example.day));
+				std::vector<std::pair<float, Data::Common::Day>> sortedDays;
 
-				double minPrediction = std::numeric_limits<double>::max();
-				size_t minPredictionIndex = -1;
+				for (auto otherExample : examples)
+					if (otherExample.first != example.first)
+						sortedDays.push_back(std::make_pair(distanceFunctions[example.first][otherExample.first], otherExample.first));
 
-				for (size_t i = 0; i < examples.size(); i++)
+				std::sort(
+					sortedDays.begin(),
+					sortedDays.end(),
+					[](auto a, auto b) { return a.first < b.first; }
+				);
+
+				for (size_t i = 0; i < 100; i++)
 				{
-					if (example.day == examples[i].day)
-						continue;
-
-					std::vector<double> values;
-					for (auto value : features[DataProcessing::Rides::Structure::Day::to_string(example.day)])
-						values.push_back(value);
-					for (auto value : features[DataProcessing::Rides::Structure::Day::to_string(examples[i].day)])
-						values.push_back(value);
-
-					double preditedValue = nn.predict(values);
-
-					if (preditedValue < minPrediction)
-					{
-						minPrediction = preditedValue;
-						minPredictionIndex = i;
-					}
+					examplesC.push_back(examples[sortedDays[i].second]);
 				}
+			}
 
-				examplesC.push_back(examples[minPredictionIndex]);
-			} 
-			
 			{
-				examplesD.push_back(examples[std::rand() % examples.size()]);
+				auto example = examples.begin();
+				std::advance(example, std::rand() % examples.size());
+
+				examplesD.push_back(example->second);
+			}
+
+			{
+
 			}
 
 			auto modelA = testPredictionPrepareModel<Nodes>(examplesA, timeFrames, initialStationSize); // base
 			auto modelB = testPredictionPrepareModel<Nodes>(examplesB, timeFrames, initialStationSize); // all
 			auto modelC = testPredictionPrepareModel<Nodes>(examplesC, timeFrames, initialStationSize); // selected
 			auto modelD = testPredictionPrepareModel<Nodes>(examplesD, timeFrames, initialStationSize); // random
+			auto modelE = testPredictionPrepareModel<Nodes>(examplesE, timeFrames, initialStationSize); // empty
 
-			std::cout 
-				<< DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelB) << " " 
-				<< DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelC) << " "
-				<< DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelD) << std::endl;
+			float diffBase = DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelA);
+			float diffAll = DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelB);
+			float diffSelected = DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelC);
+			float diffRandom = DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelD);
+			float diffEmpty = DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelE);
+
+			comparedToAll += diffAll - diffSelected;
+			comparedToEmpty += diffEmpty - diffSelected;
+
+			std::cout << diffBase << " " <<  diffAll << " " << diffSelected << " " << diffRandom << " " << diffEmpty << " | " << comparedToAll << " " << comparedToEmpty << std::endl;
 		}
 
 		std::getchar();

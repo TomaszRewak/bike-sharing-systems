@@ -24,9 +24,10 @@ namespace CityBikes::Processes
 		std::vector<Model::Data::FlowAction> actions;
 		for (size_t i = 0; i < examplesNumber; i++)
 		{
-			size_t day = std::rand() % examples.size();
+			auto example = examples.begin();
+			std::advance(example, std::rand() % examples.size());
 
-			for (auto& flowInstance : examples[day].flowInstances)
+			for (auto& flowInstance : example->second)
 				actions.push_back(Model::Data::FlowAction(flowInstance, 1. / examplesNumber));
 		}
 

@@ -6,11 +6,11 @@ from os import path
 
 from data.model.city_network.utils.downloader import download_city_network
 from data.model.city_network.utils.loader import save_city_network, load_city_network
+from data.model.distance_functions.utils.loader import save_distance_functions
 from data.model.features.utils.pickler import pickle_offline_features, unpickle_offline_features
 from data.model.features.utils.loader import save_offline_features
 from data.model.flow_matrix.utils.loader import write_flow_matrix
 from data.model.learning_examples.utils.pickler import pickle_learning_examples, unpickle_learning_examples
-from data.model.nn_regressor.utils.loader import save_neural_network
 from data.model.predictions.utils.loader import load_predictions
 from data.model.raw_rides.utils.loader import load_raw_rides
 from data.model.rides.utils.pickler import pickle_rides
@@ -21,6 +21,7 @@ from data.model.time_predictions.utils.downloader import download_time_predictio
 from data.model.time_predictions.utils.pickler import pickle_time_predictions, unpickle_time_predictions
 from data.model.weather.utils.loader import load_weather
 from data.processing.city_network.city_network_simplifying import simplify_city_network
+from data.processing.distance_functions.distance_functions_processing import process_distance_functions
 from data.processing.flow_matrix.flow_matrix_processing import process_flow_matrices
 from data.processing.learning_examples.learning_examples_grouping import group_learning_examples
 from data.processing.learning_examples.learning_examples_processing import process_learning_examples
@@ -28,7 +29,7 @@ from data.processing.features.offline_features_processing import process_offline
 from data.processing.rides.rides_processing import process_rides_data
 from data.processing.time_predictions.time_prediction_grouping import group_time_predictions
 from data.processing.time_predictions.time_prediction_request_preparing import prepare_time_prediction_requests
-from learning.nn.nn_learning import learn_distance_function
+from learning.nn.nn_learning import learn_distance_nn_function, apply_distance_nn_function
 from utilities.city_network.city_network_rendering import render_city_network
 
 parser = argparse.ArgumentParser(description='City bikes distribution')
@@ -117,10 +118,13 @@ def learn_nn_distance_function():
     learning_examples = unpickle_learning_examples('./resources/pickled/learning_examples.pickle')
     grouped_learning_examples = group_learning_examples(learning_examples)
 
-    for day, group in grouped_learning_examples.items():
-        network = learn_distance_function(group.train_examples, group.test_examples)
+    distance_functions = process_distance_functions(
+        grouped_learning_examples,
+        learn_distance_nn_function,
+        apply_distance_nn_function
+    )
 
-        save_neural_network('../resources/learning/nn/' + day, network)
+    save_distance_functions('../resources/learning/nn.model', distance_functions)
 
 
 def get_time_predictions():

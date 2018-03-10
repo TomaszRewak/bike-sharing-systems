@@ -129,6 +129,8 @@
     <None Include="rides\ride.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\day.hpp" />
+    <ClInclude Include="distance\utils\distance-functions-reader.hpp" />
     <ClInclude Include="features\features-reader.hpp" />
     <ClInclude Include="flow\flow-matrix-offset.hpp" />
     <ClInclude Include="flow\structure\flow-connection.hpp" />
@@ -136,6 +138,7 @@
     <ClInclude Include="flow\flow-matrix.hpp" />
     <ClInclude Include="flow\structure\flow-station.hpp" />
     <ClInclude Include="flow\utils\flow-matrices-reader.hpp" />
+    <ClInclude Include="distance\distance-function.hpp" />
     <ClInclude Include="predictions\utils\prediction-writer.hpp" />
     <ClInclude Include="rides\utils\ride-reader.hpp" />
   </ItemGroup>

@@ -127,8 +127,6 @@
   <ItemGroup>
     <ClInclude Include="common\time-processing.hpp" />
     <ClInclude Include="prediction\prediction-offset.hpp" />
-    <ClInclude Include="rides\structure\day.hpp" />
-    <ClInclude Include="rides\structure\ride-day-group.hpp" />
     <ClInclude Include="rides\rides-mapping.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
