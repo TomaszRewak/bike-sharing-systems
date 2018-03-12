@@ -19,7 +19,7 @@ namespace CityBikes::Flow::Filling::Structure
 				nodes[node] = nodeDefinitons[node];
 		}
 
-		size_t getFilling(size_t node, int number)
+		size_t getFilling(size_t node, int number) const
 		{
 			return nodes[node].getFilling(number);
 		}

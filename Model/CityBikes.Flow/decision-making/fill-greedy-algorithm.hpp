@@ -7,6 +7,7 @@
 
 namespace CityBikes::Flow::DecisionMaking
 {
+	template<size_t Nodes>
 	class FillGreedyAlgorithm
 	{
 	private:
@@ -20,7 +21,7 @@ namespace CityBikes::Flow::DecisionMaking
 		{ }
 
 		/// <summary> Returns the best decision that's based on greedy scoring </summary>
-		Decision::ScoredRelocationOperation makeDecision(Filling::NetworkFillingMatrixAlteration& alteration, const Relocation::RelocationUnit& relocationUnit) const
+		Decision::ScoredRelocationOperation makeDecision(Filling::NetworkFillingMatrixAlteration<Nodes>& alteration, const Relocation::RelocationUnit& relocationUnit) const
 		{
 			size_t node = relocationUnit.currentOperation.destination;
 			size_t timeFrame = relocationUnit.currentOperation.remainingTime;
@@ -54,7 +55,7 @@ namespace CityBikes::Flow::DecisionMaking
 		}
 
 	private:
-		Decision::ScoredRelocationOperation prepareDecision(Filling::NetworkFillingMatrixAlteration& alteration, Relocation::RelocationUnit relocationUnit, int change) const
+		Decision::ScoredRelocationOperation prepareDecision(Filling::NetworkFillingMatrixAlteration<Nodes>& alteration, Relocation::RelocationUnit relocationUnit, int change) const
 		{
 			Relocation::RelocationOperation operation(
 				relocationUnit.currentOperation.destination,
@@ -71,7 +72,7 @@ namespace CityBikes::Flow::DecisionMaking
 		}
 
 		/// <summary> scores a decision unit based on its current operation </summary>
-		size_t score(Filling::NetworkFillingMatrixAlteration& alteration, Relocation::RelocationUnit& relocationUnit) const
+		size_t score(Filling::NetworkFillingMatrixAlteration<Nodes>& alteration, Relocation::RelocationUnit& relocationUnit) const
 		{
 			size_t baseError = error(
 				alteration,
@@ -94,7 +95,7 @@ namespace CityBikes::Flow::DecisionMaking
 		}
 
 		/// <summary> scores a decision based on number of bikes in following time frames that fall outside of threshold - the lower the better </summary>
-		size_t error(Filling::NetworkFillingMatrixAlteration& alteration, size_t timeFrame, size_t node, int decision) const
+		size_t error(Filling::NetworkFillingMatrixAlteration<Nodes>& alteration, size_t timeFrame, size_t node, int decision) const
 		{
 			alteration[node] += decision;
 
@@ -112,7 +113,7 @@ namespace CityBikes::Flow::DecisionMaking
 
 			alteration[node] -= decision;
 
-			return above + below;
+			return above + 3 * below;
 		}
 	};
 }

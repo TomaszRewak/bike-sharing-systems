@@ -128,6 +128,7 @@
     <ClInclude Include="common\time-processing.hpp" />
     <ClInclude Include="prediction\prediction-offset.hpp" />
     <ClInclude Include="rides\rides-mapping.hpp" />
+    <ClInclude Include="validation\availability-validation.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -126,6 +126,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="configuration\operation-time-configuration.hpp" />
+    <ClInclude Include="configuration\relocation-scheduling-configuration.hpp" />
+    <ClInclude Include="configuration\scheduling-configuration.hpp" />
+    <ClInclude Include="configuration\simulation-configuration.hpp" />
+    <ClInclude Include="configuration\scheduling-space-configuration.hpp" />
     <ClInclude Include="configuration\threshold-configuration.hpp" />
     <ClInclude Include="decision-making\decision\scored-relocation-operation.hpp" />
     <ClInclude Include="decision-making\direction-greedy-algorithm.hpp" />

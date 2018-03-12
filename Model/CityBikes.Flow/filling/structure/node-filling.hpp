@@ -19,10 +19,10 @@ namespace CityBikes::Flow::Filling::Structure
 
 		NodeFilling(NodeFillingDefinition nodeFillingDefinition):
 			nodeFillingDefinition(nodeFillingDefinition),
-			nodeFilling(nodeFillingDefinition.maxNumber - nodeFillingDefinition.minNumber + 1)
+			nodeFilling(nodeFillingDefinition.maxNumber - nodeFillingDefinition.minNumber + 1, 0)
 		{ }
 
-		size_t getFilling(int number)
+		size_t getFilling(int number) const
 		{
 			if (number < nodeFillingDefinition.minNumber || number > nodeFillingDefinition.maxNumber)
 				return 0;

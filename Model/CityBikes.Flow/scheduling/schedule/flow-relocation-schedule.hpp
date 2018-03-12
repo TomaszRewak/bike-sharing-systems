@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <list>
 
 #include "../../decision-making/decision/scored-relocation-operation.hpp"
 
@@ -11,7 +12,7 @@ namespace CityBikes::Flow::Scheduling::Schedule
 		/// <summary> The higher the score - the better </summary>
 		int score = 0;
 
-		std::vector<Relocation::RelocationOperation> operations;
+		std::list<Relocation::RelocationOperation> operations;
 
 		void add(DecisionMaking::Decision::ScoredRelocationOperation& scoredOperation)
 		{

@@ -38,9 +38,7 @@ namespace CityBikes::Processes
 			initialState,
 			false);
 
-		simulation.runTo(timeFrames);
-
-		auto model = simulation.getModel();
+		auto model = simulation.run(timeFrames);
 
 		std::cout << Test::ModelIntegrity::computeTotalNumber(*model.timeFrames.begin()) << std::endl;
 		std::cout << Test::ModelIntegrity::computeTotalNumber(*model.timeFrames.rbegin()) << std::endl;

@@ -7,20 +7,16 @@
 namespace CityBikes::Flow::Filling
 {
 	/// <summary> Changes the fillness of nodes for all time frames simultaneously without a need for a recalculation </summary>
+	template<size_t Nodes>
 	class NetworkFillingMatrixAlteration
 	{
-	public:
-		const size_t nodes;
-
 	private:
-		NetworkFillingMatrix & matrix;
-		std::vector<int> nodeAlterations;
+		const NetworkFillingMatrix<Nodes> & matrix;
+		std::array<int, Nodes> nodeAlterations{};
 
 	public:
-		NetworkFillingMatrixAlteration(NetworkFillingMatrix & matrix) :
-			matrix(matrix),
-			nodeAlterations(matrix.nodes, 0),
-			nodes(matrix.nodes)
+		NetworkFillingMatrixAlteration(const NetworkFillingMatrix<Nodes> & matrix) :
+			matrix(matrix)
 		{ }
 
 		int& operator[](size_t node)

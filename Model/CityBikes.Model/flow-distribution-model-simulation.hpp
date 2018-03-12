@@ -16,10 +16,10 @@ namespace CityBikes::Model
 	private:
 		const Configuration::FlowDistributionModelSimulationConfiguration& configuration;
 
+		size_t timeFrame = 0;
 		size_t currentAction = 0;
 
 		Structure::NetworkState<Nodes> currentState;
-		FlowDistributionModel<Nodes> model;
 		Memory::FlowDistributionModelMemory<Nodes> memory;
 
 		const bool forceFlow;
@@ -35,11 +35,6 @@ namespace CityBikes::Model
 			forceFlow(forceFlow)
 		{ }
 
-		FlowDistributionModel<Nodes> getModel() const
-		{
-			return model;
-		}
-
 		Structure::NetworkState<Nodes>& getCurrentState()
 		{
 			return currentState;
@@ -47,8 +42,6 @@ namespace CityBikes::Model
 
 		void step()
 		{
-			size_t timeFrame = model.timeFrames.size();
-
 			// perform actions
 
 			const auto& actions = configuration.getActions();
@@ -79,13 +72,20 @@ namespace CityBikes::Model
 
 			// update model
 
-			model.timeFrames.push_back(currentState);
+			timeFrame++;
 		}
 
-		void runTo(size_t timeFrame)
+		FlowDistributionModel<Nodes> run(size_t timeFrames)
 		{
-			while (model.timeFrames.size() <= timeFrame)
+			FlowDistributionModel<Nodes> model;
+
+			for (size_t timeFrame = 0; timeFrame < timeFrames; timeFrame++)
+			{
+				model.timeFrames.push_back(currentState);
 				step();
+			}
+
+			return model;
 		}
 	};
 }

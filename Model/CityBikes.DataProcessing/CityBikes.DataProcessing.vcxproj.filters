@@ -4,6 +4,7 @@
     <ClInclude Include="rides\rides-mapping.hpp" />
     <ClInclude Include="prediction\prediction-offset.hpp" />
     <ClInclude Include="common\time-processing.hpp" />
+    <ClInclude Include="validation\availability-validation.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\_.cpp" />

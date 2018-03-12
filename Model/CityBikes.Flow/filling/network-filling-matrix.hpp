@@ -64,14 +64,16 @@ namespace CityBikes::Flow::Filling
 			std::reverse(timeFrames.begin(), timeFrames.end());
 		}
 
-		int getNumber(size_t timeFrame, size_t node)
+		int getNumber(size_t timeFrame, size_t node) const
 		{
+			timeFrame = std::min(timeFrame, baseModel.timeFrames.size() - 1);
+
 			return std::round(baseModel.timeFrames[timeFrame].nodes[node].value);
 		}
 
-		size_t getAboveThreshold(size_t timeFrame, size_t node, int threshold)
+		size_t getAboveThreshold(size_t timeFrame, size_t node, int threshold) const
 		{
-			if (timeFrame > timeFrames.size())
+			if (timeFrame >= timeFrames.size())
 				return 0;
 
 			size_t count = 0;
@@ -82,9 +84,9 @@ namespace CityBikes::Flow::Filling
 			return count;
 		}
 
-		size_t getBelowThreshold(size_t timeFrame, size_t node, int threshold)
+		size_t getBelowThreshold(size_t timeFrame, size_t node, int threshold) const
 		{
-			if (timeFrame > timeFrames.size())
+			if (timeFrame >= timeFrames.size())
 				return 0;
 
 			size_t count = 0;

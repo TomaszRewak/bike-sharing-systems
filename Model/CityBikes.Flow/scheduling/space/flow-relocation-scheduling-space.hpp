@@ -6,31 +6,34 @@
 #include "../../decision-making/fill-greedy-algorithm.hpp"
 #include "../../decision-making/direction-greedy-algorithm.hpp"
 #include "../../relocation/relocation-unit.hpp"
-#include "../../../CityBikes.Data/flow/flow-matrix.hpp"
 
 namespace CityBikes::Flow::Scheduling::Space
 {
 	/// <summary> Space of possible solutions - routs of relocation units </summary>
+	template<size_t Nodes>
 	class FlowRelocationSchedulingSpace
 	{
 	private:
-		Filling::NetworkFillingMatrix& networkFillingMatrix;
-		DecisionMaking::FillGreedyAlgorithm& fillGreedyAlgorithm;
-		DecisionMaking::DirectionGreedyAlgorithm& directionGreedyAlgorithm;
+		const Filling::NetworkFillingMatrix<Nodes>& networkFillingMatrix;
+		DecisionMaking::FillGreedyAlgorithm<Nodes>& fillGreedyAlgorithm;
+		DecisionMaking::DirectionGreedyAlgorithm<Nodes>& directionGreedyAlgorithm;
 
 		size_t routeLength;
+		size_t timeLength;
 
 	public:
 		FlowRelocationSchedulingSpace(
-			Filling::NetworkFillingMatrix &networkFillingMatrix,
-			DecisionMaking::FillGreedyAlgorithm& fillGreedyAlgorithm,
-			DecisionMaking::DirectionGreedyAlgorithm& directionGreedyAlgorithm,
-			size_t routeLength
+			const Filling::NetworkFillingMatrix<Nodes> &networkFillingMatrix,
+			DecisionMaking::FillGreedyAlgorithm<Nodes>& fillGreedyAlgorithm,
+			DecisionMaking::DirectionGreedyAlgorithm<Nodes>& directionGreedyAlgorithm,
+			size_t routeLength,
+			size_t timeLength
 		) :
 			networkFillingMatrix(networkFillingMatrix),
 			fillGreedyAlgorithm(fillGreedyAlgorithm),
 			directionGreedyAlgorithm(directionGreedyAlgorithm),
-			routeLength(routeLength)
+			routeLength(routeLength),
+			timeLength(timeLength)
 		{ }
 
 		/// <summary> Stochastically produces a new instance of a relocation unit route based on greedy algorithm </summary>
@@ -40,7 +43,7 @@ namespace CityBikes::Flow::Scheduling::Space
 
 			Schedule::FlowRelocationSchedule schedule;
 
-			Filling::NetworkFillingMatrixAlteration alteration(networkFillingMatrix);
+			Filling::NetworkFillingMatrixAlteration<Nodes> alteration(networkFillingMatrix);
 
 			// make first decision (based on current direction or current position of the car)
 
@@ -57,7 +60,7 @@ namespace CityBikes::Flow::Scheduling::Space
 
 			// make other decisions
 
-			for (size_t i = 0; i < routeLength; i++)
+			for (size_t i = 0; i < routeLength && relocationUnit.currentOperation.remainingTime < timeLength; i++)
 			{
 				// Make best decision about direction
 
@@ -81,7 +84,7 @@ namespace CityBikes::Flow::Scheduling::Space
 		}
 
 	private:
-		void applyOperation(Relocation::RelocationOperation& operation, Relocation::RelocationUnit& relocationUnit, Filling::NetworkFillingMatrixAlteration& alteration)
+		void applyOperation(Relocation::RelocationOperation& operation, Relocation::RelocationUnit& relocationUnit, Filling::NetworkFillingMatrixAlteration<Nodes>& alteration)
 		{
 			relocationUnit.schedule(operation);
 			alteration[operation.destination] += operation.destinationFillChange;

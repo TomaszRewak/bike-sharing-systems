@@ -21,7 +21,7 @@ namespace CityBikes::Flow::Configuration
 			if (fillChange == 0)
 				return 0;
 
-			return std::round(
+			return (size_t)std::round(
 				baseOperationTime + std::abs(fillChange) * singleOperationTime
 			);
 		}

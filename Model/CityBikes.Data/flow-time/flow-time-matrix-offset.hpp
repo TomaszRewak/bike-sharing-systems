@@ -5,14 +5,14 @@
 namespace CityBikes::Data::FlowTime
 {
 	template<size_t Nodes>
-	class FlowMatrixOffset
+	class FlowTimeMatrixOffset
 	{
 	private:
 		const FlowTimeMatrix<Nodes> & flowMatrix;
 		size_t timeOffset;
 
 	public:
-		FlowMatrixOffset(const FlowTimeMatrix<Nodes>& flowMatrix, size_t timeOffset) :
+		FlowTimeMatrixOffset(const FlowTimeMatrix<Nodes>& flowMatrix, size_t timeOffset) :
 			flowMatrix(flowMatrix),
 			timeOffset(timeOffset)
 		{ }

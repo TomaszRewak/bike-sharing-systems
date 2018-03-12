@@ -24,6 +24,8 @@ namespace CityBikes::Model
 
 			for (size_t i = skip; i < timeFrames.size(); i++)
 				model.timeFrames.push_back(timeFrames[i]);
+
+			return model;
 		}
 	};
 }

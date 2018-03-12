@@ -31,9 +31,7 @@ namespace CityBikes::Processes
 			initialState,
 			false);
 
-		simulation.runTo(timeFrames);
-
-		return simulation.getModel();
+		return simulation.run(timeFrames);
 	}
 
 	template<size_t Nodes>

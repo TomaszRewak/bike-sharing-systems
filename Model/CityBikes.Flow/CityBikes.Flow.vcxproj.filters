@@ -20,6 +20,10 @@
     <ClInclude Include="scheduling\schedule\flow-relocation-schedule-applier.hpp" />
     <ClInclude Include="relocation\relocation-operation.hpp" />
     <ClInclude Include="decision-making\decision\scored-relocation-operation.hpp" />
+    <ClInclude Include="configuration\scheduling-space-configuration.hpp" />
+    <ClInclude Include="configuration\scheduling-configuration.hpp" />
+    <ClInclude Include="configuration\relocation-scheduling-configuration.hpp" />
+    <ClInclude Include="configuration\simulation-configuration.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\_.cpp" />

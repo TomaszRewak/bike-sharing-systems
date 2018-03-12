@@ -2,7 +2,7 @@
 
 #include "decision/scored-relocation-operation.hpp"
 #include "../relocation/relocation-unit.hpp"
-#include "../../CityBikes.Data/flow/flow-matrix-offset.hpp"
+#include "../../CityBikes.Data/flow-time/flow-time-matrix-offset.hpp"
 #include "fill-greedy-algorithm.hpp"
 
 #include <tuple>
@@ -10,27 +10,28 @@
 namespace CityBikes::Flow::DecisionMaking
 {
 	/// <summary> Makes a greedy decision about the direction relocation unit should take based on greedy fill estimation of the nest step </summary>
+	template<size_t Nodes>
 	class DirectionGreedyAlgorithm
 	{
 	private:
-		const Data::Flow::FlowMatrixOffset& flowMatrix;
-		const FillGreedyAlgorithm& fillGreedyAlgorithm;
+		const Data::FlowTime::FlowTimeMatrixOffset<Nodes>& flowMatrix;
+		const FillGreedyAlgorithm<Nodes>& fillGreedyAlgorithm;
 
 	public:
-		DirectionGreedyAlgorithm(const Data::Flow::FlowMatrixOffset& flowMatrix, const FillGreedyAlgorithm& fillGreedyAlgorithm) :
+		DirectionGreedyAlgorithm(const Data::FlowTime::FlowTimeMatrixOffset<Nodes>& flowMatrix, const FillGreedyAlgorithm<Nodes>& fillGreedyAlgorithm) :
 			flowMatrix(flowMatrix),
 			fillGreedyAlgorithm(fillGreedyAlgorithm)
 		{ }
 
 		std::pair<Decision::ScoredRelocationOperation, Decision::ScoredRelocationOperation> getDecision(
-			Filling::NetworkFillingMatrixAlteration& alteration,
+			Filling::NetworkFillingMatrixAlteration<Nodes>& alteration,
 			Relocation::RelocationUnit& relocationUnit)
 		{
 			// Produce all possible decisions - relocation to all nodes
 
 			std::vector<std::pair<Decision::ScoredRelocationOperation, Decision::ScoredRelocationOperation>> possibleDecisions;
 
-			for (size_t node = 0; node < alteration.nodes; node++)
+			for (size_t node = 0; node < Nodes; node++)
 			{
 				auto operations = prepareOperations(alteration, relocationUnit, node);
 
@@ -62,7 +63,7 @@ namespace CityBikes::Flow::DecisionMaking
 
 	private:
 		std::pair<Decision::ScoredRelocationOperation, Decision::ScoredRelocationOperation> prepareOperations(
-			Filling::NetworkFillingMatrixAlteration& alteration,
+			Filling::NetworkFillingMatrixAlteration<Nodes>& alteration,
 			Relocation::RelocationUnit relocationUnit,
 			size_t targetNode,
 			size_t minTransitionTime = 0)

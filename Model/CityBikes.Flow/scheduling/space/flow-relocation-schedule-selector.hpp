@@ -4,20 +4,21 @@
 
 namespace CityBikes::Flow::Scheduling::Space
 {
+	template<size_t Nodes>
 	class FlowRelocationScheduleSelector
 	{
 	private:
-		FlowRelocationSchedulingSpace& space;
+		FlowRelocationSchedulingSpace<Nodes>& space;
 		size_t searchSize;
 
 	public:
-		FlowRelocationScheduleSelector(FlowRelocationSchedulingSpace& space, size_t searchSize):
+		FlowRelocationScheduleSelector(FlowRelocationSchedulingSpace<Nodes>& space, size_t searchSize):
 			space(space),
 			searchSize(searchSize)
 		{ }
 
 		/// <summary> Looks through n random examples to find the best one </summary>
-		std::vector<Relocation::RelocationOperation> getRoute(const Relocation::RelocationUnit& relocationUnit)
+		std::list<Relocation::RelocationOperation> getRoute(const Relocation::RelocationUnit& relocationUnit)
 		{
 			Schedule::FlowRelocationSchedule bestSchedule;
 
