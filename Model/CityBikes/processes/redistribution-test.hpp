@@ -38,8 +38,15 @@ namespace CityBikes::Processes
 		auto flowMatrices = Data::FlowTime::Utils::FlowTimeMatricesReader::readData<Nodes>("../../Resources/processed/time_matrices.time", timeFrames);
 		auto examples = DataProcessing::Rides::RidesMapper::map(rides, timeFrames);
 
+		size_t exampleNumber = 0;
+
 		for (const auto& example : examples)
 		{
+			exampleNumber++;
+
+			if (exampleNumber < 50)
+				continue;
+
 			std::vector<Model::Data::FlowAction> predictionActions;
 			{
 				for (auto& otherExample : examples)
@@ -98,9 +105,9 @@ namespace CityBikes::Processes
 				Model::Configuration::FlowDistributionModelSimulationConfiguration(noActions)
 			);
 
+			auto modelTwoFlow = testRedistributionForConfiguration(timeFrames, initialState, initialModelTwo, simulationConfigurationFlow, flowMatrices.begin()->second);
 			auto modelNo = testRedistributionForConfiguration(timeFrames, initialState, initialModelNo, simulationConfigurationPrediction, flowMatrices.begin()->second);
 			auto modelTwoPrediction = testRedistributionForConfiguration(timeFrames, initialState, initialModelTwo, simulationConfigurationPrediction, flowMatrices.begin()->second);
-			auto modelTwoFlow = testRedistributionForConfiguration(timeFrames, initialState, initialModelTwo, simulationConfigurationFlow, flowMatrices.begin()->second);
 			auto modelTwoNo = testRedistributionForConfiguration(timeFrames, initialState, initialModelTwo, simulationConfigurationNo, flowMatrices.begin()->second);
 
 			std::cout

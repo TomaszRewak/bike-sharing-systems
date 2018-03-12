@@ -93,19 +93,17 @@ namespace CityBikes::Flow
 				auto& relocationUnit = relocationModel.relocationUnits[unit];
 				auto unitOperations = operations[unit];
 
-				do
+				while (relocationUnit.currentOperation.remainingTime == 0)
 				{
-					if (relocationUnit.currentOperation.remainingTime == 0)
-					{
-						applyRelocationOperation(relocationUnit);
+					applyRelocationOperation(relocationUnit);
 
-						if (unitOperations.size() > 0)
-						{
-							relocationUnit.schedule(unitOperations.front());
-							unitOperations.pop_front();
-						}
+					if (unitOperations.size() > 0)
+					{
+						relocationUnit.schedule(unitOperations.front());
+						unitOperations.pop_front();
 					}
-				} while (relocationUnit.currentOperation.remainingTime == 0 && unitOperations.size() > 0);
+					else break;
+				}
 			}
 		}
 
