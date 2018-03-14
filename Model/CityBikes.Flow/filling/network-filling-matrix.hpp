@@ -16,7 +16,7 @@ namespace CityBikes::Flow::Filling
 		std::vector<Structure::NetworkFilling<Nodes>> timeFrames;
 
 	public:
-		NetworkFillingMatrix(Model::FlowDistributionModel<Nodes>& model) :
+		NetworkFillingMatrix(const Model::FlowDistributionModel<Nodes>& model) :
 			baseModel(model)
 		{
 			size_t timeFramesNumber = baseModel.timeFrames.size();

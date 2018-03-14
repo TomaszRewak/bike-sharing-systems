@@ -24,19 +24,19 @@ namespace CityBikes::Flow::Filling
 			return nodeAlterations[node];
 		}
 
-		int getNumber(size_t timeFrame, size_t node)
+		int getNumber(size_t timeFrame, size_t node) const
 		{
 			return matrix.getNumber(timeFrame, node) + nodeAlterations[node];
 		}
 
-		size_t getAboveThreshold(size_t timeFrame, size_t node, int threshold)
+		size_t getAboveThreshold(size_t timeFrame, size_t node, int threshold) const
 		{
 			threshold -= nodeAlterations[node];
 
 			return matrix.getAboveThreshold(timeFrame, node, threshold);
 		}
 
-		size_t getBelowThreshold(size_t timeFrame, size_t node, int threshold)
+		size_t getBelowThreshold(size_t timeFrame, size_t node, int threshold) const
 		{
 			threshold -= nodeAlterations[node];
 

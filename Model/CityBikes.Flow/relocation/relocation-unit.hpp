@@ -1,7 +1,5 @@
 #pragma once
 
-#include "relocation-operation.hpp"
-
 namespace CityBikes::Flow::Relocation
 {
 	struct RelocationUnit
@@ -12,20 +10,17 @@ namespace CityBikes::Flow::Relocation
 		/// <summary> Maximal load of the unit </summary>
 		size_t maxLoad;
 
-		/// <summary> Currently performed operation (contains information about current position of the unit) </summary>
-		RelocationOperation currentOperation;
+		/// <summary> The next destination of the unit or current position if timeUntilDestination == 0 </summary>
+		size_t destination;
+
+		/// <summary> When is destination going to be reached </summary>
+		size_t timeUntilDestination;
 
 		RelocationUnit(size_t position, size_t currentLoad, size_t maxLoad) :
-			currentOperation(position),
+			destination(position),
 			currentLoad(currentLoad),
-			maxLoad(maxLoad)
+			maxLoad(maxLoad),
+			timeUntilDestination(0)
 		{ }
-
-		void schedule(const RelocationOperation& operation)
-		{
-			currentOperation.destination = operation.destination;
-			currentOperation.destinationFillChange = operation.destinationFillChange;
-			currentOperation.remainingTime += operation.remainingTime;
-		}
 	};
 }

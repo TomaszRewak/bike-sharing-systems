@@ -12,18 +12,18 @@
     <ClInclude Include="configuration\threshold-configuration.hpp" />
     <ClInclude Include="scheduling\flow-relocation-scheduler.hpp" />
     <ClInclude Include="decision-making\fill-greedy-algorithm.hpp" />
-    <ClInclude Include="decision-making\direction-greedy-algorithm.hpp" />
-    <ClInclude Include="scheduling\schedule\flow-relocation-schedule.hpp" />
-    <ClInclude Include="scheduling\space\flow-relocation-scheduling-space.hpp" />
-    <ClInclude Include="scheduling\space\flow-relocation-schedule-selector.hpp" />
     <ClInclude Include="configuration\operation-time-configuration.hpp" />
-    <ClInclude Include="scheduling\schedule\flow-relocation-schedule-applier.hpp" />
-    <ClInclude Include="relocation\relocation-operation.hpp" />
-    <ClInclude Include="decision-making\decision\scored-relocation-operation.hpp" />
     <ClInclude Include="configuration\scheduling-space-configuration.hpp" />
     <ClInclude Include="configuration\scheduling-configuration.hpp" />
     <ClInclude Include="configuration\relocation-scheduling-configuration.hpp" />
     <ClInclude Include="configuration\simulation-configuration.hpp" />
+    <ClInclude Include="decision-making\path-greedy-algorithm.hpp" />
+    <ClInclude Include="relocation\decision\fill-decision-applier.hpp" />
+    <ClInclude Include="relocation\decision\path-decision-applier.hpp" />
+    <ClInclude Include="decision-making\decision\fill-decision.hpp" />
+    <ClInclude Include="decision-making\decision\path-decision.hpp" />
+    <ClInclude Include="relocation\relocation-operation.hpp" />
+    <ClInclude Include="relocation\decision\decision-applier.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\_.cpp" />

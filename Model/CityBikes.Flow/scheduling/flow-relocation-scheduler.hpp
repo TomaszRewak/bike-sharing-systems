@@ -4,8 +4,9 @@
 #include "../../CityBikes.Model/flow-distribution-model.hpp"
 #include "../filling/network-filling-matrix.hpp"
 #include "../decision-making/fill-greedy-algorithm.hpp"
-#include "space/flow-relocation-schedule-selector.hpp"
+#include "../decision-making/path-greedy-algorithm.hpp"
 #include "../configuration/scheduling-configuration.hpp"
+#include "../relocation/decision/decision-applier.hpp"
 
 namespace CityBikes::Flow::Scheduling
 {
@@ -13,54 +14,38 @@ namespace CityBikes::Flow::Scheduling
 	class FlowRelocationScheduler
 	{
 	private:
-		const Data::FlowTime::FlowTimeMatrixOffset<Nodes>& flowTimeMatrixOffset;
-		Configuration::SchedulingConfiguration configuration;
+		Configuration::SchedulingSpaceConfiguration configuration;
+		const DecisionMaking::PathGreedyAlgorithm<Nodes>& pathGreedyAlgorithm;
+		const Relocation::Decision::DecisionApplier<Nodes>& decisionApplier;
 
 	public:
 		FlowRelocationScheduler(
-			const Data::FlowTime::FlowTimeMatrixOffset<Nodes>& flowTimeMatrixOffset,
-			Configuration::SchedulingConfiguration configuration
+			Configuration::SchedulingSpaceConfiguration configuration,
+			const DecisionMaking::PathGreedyAlgorithm<Nodes>& pathGreedyAlgorithm,
+			const Relocation::Decision::DecisionApplier<Nodes>& decisionApplier
 		) :
-			flowTimeMatrixOffset(flowTimeMatrixOffset),
-			configuration(configuration)
+			configuration(configuration),
+			pathGreedyAlgorithm(pathGreedyAlgorithm),
+			decisionApplier(decisionApplier)
 		{ }
 
 		/// <summary> Make best decisions for a given (current) time frame. Returns fill change for stations </summary>
-		std::vector<std::list<Relocation::RelocationOperation>> schedule(
+		std::vector<std::vector<Relocation::RelocationOperation>> schedule(
 			FlowRelocationModel relocationModel,
-			Model::FlowDistributionModel<Nodes> distributionModel)
+			Model::FlowDistributionModel<Nodes> distributionModel
+		) const
 		{
-			std::vector<std::list<Relocation::RelocationOperation>> result;
+			// prepare result
+
+			std::vector<std::vector<Relocation::RelocationOperation>> result;
 
 			// Schedule relocations
 
 			for (auto& relocationUnit : relocationModel.relocationUnits)
 			{
-				alterDistributionModel(distributionModel, relocationUnit);
+				std::vector<Relocation::RelocationOperation> unitSchedule = scheduleUnit(relocationUnit, distributionModel);
 
-				Filling::NetworkFillingMatrix<Nodes> networkFillingMatrix(
-					distributionModel);
-				DecisionMaking::FillGreedyAlgorithm<Nodes> fillGreedyAlgorithm(
-					configuration.thresholdConfiguration, 
-					configuration.operationTimeConfiguration);
-				DecisionMaking::DirectionGreedyAlgorithm<Nodes> directionGreedyAlgorithm(
-					flowTimeMatrixOffset, 
-					fillGreedyAlgorithm);
-				Scheduling::Space::FlowRelocationSchedulingSpace<Nodes> schedulingSpace(
-					networkFillingMatrix, 
-					fillGreedyAlgorithm, 
-					directionGreedyAlgorithm, 
-					configuration.schedulingSpaceConfiguration.scheduleLength,
-					distributionModel.timeFrames.size());
-				Scheduling::Space::FlowRelocationScheduleSelector<Nodes> selector(
-					schedulingSpace, 
-					configuration.schedulingSpaceConfiguration.scheduleSpaceSize);
-
-				auto operations = selector.getRoute(relocationUnit);
-
-				alterDistributionModel(distributionModel, relocationUnit, operations);
-
-				result.push_back(operations);
+				result.push_back(unitSchedule);
 			}
 
 			// return result
@@ -68,31 +53,29 @@ namespace CityBikes::Flow::Scheduling
 			return result;
 		}
 
-	private:
-		void alterDistributionModel(
-			Model::FlowDistributionModel<Nodes>& distributionModel,
+		std::vector<Relocation::RelocationOperation> scheduleUnit(
 			Relocation::RelocationUnit& relocationUnit,
-			std::list<Relocation::RelocationOperation>& operations)
+			Model::FlowDistributionModel<Nodes>& distributionModel
+		) const
 		{
-			for (const auto& operation : operations)
+			Filling::NetworkFillingMatrix<Nodes> networkFillingMatrix(distributionModel);
+
+			DecisionMaking::Decision::PathDecision bestDecision;
+
+			for (size_t attempt = 0; attempt < configuration.scheduleSpaceSize; attempt++)
 			{
-				relocationUnit.schedule(operation);
+				DecisionMaking::Decision::PathDecision decision = pathGreedyAlgorithm.makeDecision(networkFillingMatrix, relocationUnit, configuration.scheduleLength);
 
-				alterDistributionModel(distributionModel, relocationUnit);
+				if (decision.score > bestDecision.score)
+					bestDecision = decision;
 			}
-		}
 
-		void alterDistributionModel(
-			Model::FlowDistributionModel<Nodes>& distributionModel,
-			Relocation::RelocationUnit& relocationUnit)
-		{
-			distributionModel.alter(
-				relocationUnit.currentOperation.remainingTime,
-				relocationUnit.currentOperation.destination,
-				relocationUnit.currentOperation.destinationFillChange);
+			for (auto& operation : bestDecision.operations)
+			{
+				decisionApplier.apply(relocationUnit, distributionModel, operation);
+			}
 
-			relocationUnit.currentLoad -= relocationUnit.currentOperation.destinationFillChange;
-			relocationUnit.currentOperation.destinationFillChange = 0;
+			return bestDecision.operations;
 		}
 	};
 }

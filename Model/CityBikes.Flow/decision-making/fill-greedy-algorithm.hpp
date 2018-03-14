@@ -3,7 +3,7 @@
 #include "../filling/network-filling-matrix-alteration.hpp"
 #include "../configuration/threshold-configuration.hpp"
 #include "../configuration/operation-time-configuration.hpp"
-#include "decision/scored-relocation-operation.hpp"
+#include "decision/fill-decision.hpp"
 
 namespace CityBikes::Flow::DecisionMaking
 {
@@ -11,20 +11,21 @@ namespace CityBikes::Flow::DecisionMaking
 	class FillGreedyAlgorithm
 	{
 	private:
-		Configuration::ThresholdConfiguration thresholdConfiguration;
-		Configuration::OperationTimeConfiguration operationTimeConfiguration;
+		const Configuration::ThresholdConfiguration thresholdConfiguration;
 
 	public:
-		FillGreedyAlgorithm(Configuration::ThresholdConfiguration thresholdConfiguration, Configuration::OperationTimeConfiguration operationTimeConfiguration) :
-			thresholdConfiguration(thresholdConfiguration),
-			operationTimeConfiguration(operationTimeConfiguration)
+		FillGreedyAlgorithm(Configuration::ThresholdConfiguration thresholdConfiguration) :
+			thresholdConfiguration(thresholdConfiguration)
 		{ }
 
 		/// <summary> Returns the best decision that's based on greedy scoring </summary>
-		Decision::ScoredRelocationOperation makeDecision(Filling::NetworkFillingMatrixAlteration<Nodes>& alteration, const Relocation::RelocationUnit& relocationUnit) const
+		Decision::FillDecision makeDecision(
+			const Filling::NetworkFillingMatrixAlteration<Nodes>& alteration,
+			const Relocation::RelocationUnit& relocationUnit
+		) const
 		{
-			size_t node = relocationUnit.currentOperation.destination;
-			size_t timeFrame = relocationUnit.currentOperation.remainingTime;
+			size_t node = relocationUnit.destination;
+			size_t timeFrame = relocationUnit.timeUntilDestination;
 
 			// Compute relocation limit
 
@@ -36,17 +37,22 @@ namespace CityBikes::Flow::DecisionMaking
 
 			// Find best decision
 
-			Decision::ScoredRelocationOperation bestDecision(
-				Relocation::RelocationOperation(node, 0, 0),
-				0
-			);
+			Decision::FillDecision bestDecision(relocationUnit.destination);
 
 			for (int change = minChange; change <= maxChange; change++)
 			{
-				Decision::ScoredRelocationOperation decision = prepareDecision(alteration, relocationUnit, change);
+				size_t decisionScore = score(
+					alteration,
+					relocationUnit.timeUntilDestination,
+					relocationUnit.destination,
+					change
+				);
 
-				if (decision.score > bestDecision.score)
-					bestDecision = decision;
+				if (decisionScore > bestDecision.score)
+				{
+					bestDecision.operation.change = change;
+					bestDecision.score = decisionScore;
+				}
 			}
 
 			// Return decision
@@ -55,37 +61,25 @@ namespace CityBikes::Flow::DecisionMaking
 		}
 
 	private:
-		Decision::ScoredRelocationOperation prepareDecision(Filling::NetworkFillingMatrixAlteration<Nodes>& alteration, Relocation::RelocationUnit relocationUnit, int change) const
-		{
-			Relocation::RelocationOperation operation(
-				relocationUnit.currentOperation.destination,
-				change,
-				operationTimeConfiguration.getFillnessChangeTime(change)
-			);
-
-			relocationUnit.schedule(operation);
-
-			return Decision::ScoredRelocationOperation(
-				operation,
-				score(alteration, relocationUnit)
-			);
-		}
-
 		/// <summary> scores a decision unit based on its current operation </summary>
-		size_t score(Filling::NetworkFillingMatrixAlteration<Nodes>& alteration, Relocation::RelocationUnit& relocationUnit) const
+		size_t score(
+			const Filling::NetworkFillingMatrixAlteration<Nodes>& alteration,
+			size_t timeFrame, size_t node,
+			int decision
+		) const
 		{
 			size_t baseError = error(
 				alteration,
-				relocationUnit.currentOperation.remainingTime,
-				relocationUnit.currentOperation.destination,
+				timeFrame,
+				node,
 				0
 			);
 
 			size_t fillError = error(
 				alteration,
-				relocationUnit.currentOperation.remainingTime,
-				relocationUnit.currentOperation.destination,
-				relocationUnit.currentOperation.destinationFillChange
+				timeFrame,
+				node,
+				decision
 			);
 
 			if (fillError > baseError)
@@ -95,25 +89,25 @@ namespace CityBikes::Flow::DecisionMaking
 		}
 
 		/// <summary> scores a decision based on number of bikes in following time frames that fall outside of threshold - the lower the better </summary>
-		size_t error(Filling::NetworkFillingMatrixAlteration<Nodes>& alteration, size_t timeFrame, size_t node, int decision) const
+		size_t error(
+			const Filling::NetworkFillingMatrixAlteration<Nodes>& alteration, 
+			size_t timeFrame, size_t node, 
+			int decision
+		) const
 		{
-			alteration[node] += decision;
-
 			size_t above = alteration.getAboveThreshold(
 				timeFrame,
 				node,
-				thresholdConfiguration.maxValue
+				thresholdConfiguration.maxValue - decision
 			);
 
 			size_t below = alteration.getBelowThreshold(
 				timeFrame,
 				node,
-				thresholdConfiguration.minValue
+				thresholdConfiguration.minValue - decision
 			);
 
-			alteration[node] -= decision;
-
-			return above + 3 * below;
+			return above + below;
 		}
 	};
 }

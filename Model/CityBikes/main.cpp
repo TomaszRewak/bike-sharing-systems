@@ -20,7 +20,7 @@ int main()
 	//CityBikes::Processes::testPrediction<stations>(timeFrames, initialStationSize, examplesNumber);
 	//CityBikes::Processes::testFlow<stations>(timeFrames, initialStationSize, examplesNumber);
 	//CityBikes::Processes::testNetworkFill<stations>(timeFrames, initialStationSize, examplesNumber);
-	CityBikes::Processes::testRedistribution<stations>(timeFrames, initialStationSize, examplesNumber);
+	CityBikes::Processes::testRedistribution<stations>(timeFrames);
 
 	return 0;
 }

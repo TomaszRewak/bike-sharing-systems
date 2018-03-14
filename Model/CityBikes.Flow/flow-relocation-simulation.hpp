@@ -48,24 +48,53 @@ namespace CityBikes::Flow
 		void step()
 		{
 			Model::FlowDistributionModelSimulation<Nodes> predictionWindowSimulation = predictedFlowSimulation;
-			auto predictedWindow = predictionWindowSimulation.run(configuration.relocationSchedulingConfiguration.predictionWindow);
+			Model::FlowDistributionModel<Nodes> predictedWindow = predictionWindowSimulation.run(configuration.relocationSchedulingConfiguration.predictionWindow);
 
 			Data::FlowTime::FlowTimeMatrixOffset<Nodes> flowTimeMatrixOffset(
 				flowTimeMatrix,
 				timeFrame);
+			Relocation::Decision::FillDecisionApplier<Nodes> fillDecisionApplier(
+				configuration.schedulingConfiguration.operationTimeConfiguration);
+			Relocation::Decision::PathDecisionApplier<Nodes> pathDecisionApplier(
+				flowTimeMatrixOffset);
+			Relocation::Decision::DecisionApplier<Nodes> decisionApplier(
+				fillDecisionApplier,
+				pathDecisionApplier);
+			DecisionMaking::FillGreedyAlgorithm<Nodes> fillGreedyAlgorithm(
+				configuration.schedulingConfiguration.thresholdConfiguration);
+			DecisionMaking::PathGreedyAlgorithm<Nodes> pathGreedyAlgorithm(
+				fillGreedyAlgorithm,
+				fillDecisionApplier,
+				pathDecisionApplier);
 			Scheduling::FlowRelocationScheduler<Nodes> scheduler(
-				flowTimeMatrixOffset,
-				configuration.schedulingConfiguration);
+				configuration.schedulingConfiguration.schedulingSpaceConfiguration,
+				pathGreedyAlgorithm,
+				decisionApplier);
 
-			auto relocationOperations = scheduler.schedule(relocationModel, predictedWindow);
+			std::vector<std::vector<Relocation::RelocationOperation>> relocationOperations = scheduler.schedule(relocationModel, predictedWindow);
 
-			applyRelocationOperations(relocationOperations);
+			for (size_t unit = 0; unit < relocationModel.relocationUnits.size(); unit++)
+			{
+				auto& relocationUnit = relocationModel.relocationUnits[unit];
+				auto& operations = relocationOperations[unit];
+
+				for (auto& operation : operations)
+				{
+					if (relocationUnit.timeUntilDestination > 0)
+						break;
+
+					decisionApplier.check(relocationUnit, getCurrentState(), operation);
+					decisionApplier.apply(relocationUnit, getCurrentState(), operation);
+				}
+			}
 
 			for (auto& relocationUnit : relocationModel.relocationUnits)
-				if (relocationUnit.currentOperation.remainingTime > 0)
-					relocationUnit.currentOperation.remainingTime--;
+				if (relocationUnit.timeUntilDestination > 0)
+					relocationUnit.timeUntilDestination--;
 
 			timeFrame++;
+
+			// forward simulation
 
 			realFlowSimulation.step();
 			predictedFlowSimulation.step();
@@ -83,53 +112,6 @@ namespace CityBikes::Flow
 			}
 
 			return model;
-		}
-
-	private:
-		void applyRelocationOperations(const std::vector<std::list<Relocation::RelocationOperation>>& operations)
-		{
-			for (size_t unit = 0; unit < relocationModel.relocationUnits.size(); unit++)
-			{
-				auto& relocationUnit = relocationModel.relocationUnits[unit];
-				auto unitOperations = operations[unit];
-
-				while (relocationUnit.currentOperation.remainingTime == 0)
-				{
-					applyRelocationOperation(relocationUnit);
-
-					if (unitOperations.size() > 0)
-					{
-						relocationUnit.schedule(unitOperations.front());
-						unitOperations.pop_front();
-					}
-					else break;
-				}
-			}
-		}
-
-		void applyRelocationOperation(Relocation::RelocationUnit& relocationUnit)
-		{
-			Model::Structure::NetworkState<Nodes>& currentState = getCurrentState();
-
-			int fillChange = relocationUnit.currentOperation.destinationFillChange;
-			size_t destination = relocationUnit.currentOperation.destination;
-
-			if (fillChange > 0)
-			{
-				if (fillChange > relocationUnit.currentLoad)
-					throw "You cannot give more then you have";
-			}
-			if (fillChange < 0)
-			{
-				if (relocationUnit.currentLoad - fillChange > relocationUnit.maxLoad)
-					throw "You cannot get more then you can have";
-
-				fillChange = std::max((double)fillChange, -currentState.nodes[destination].value);
-			}
-
-			relocationUnit.currentLoad -= fillChange;
-			currentState.nodes[destination].add(fillChange);
-			relocationUnit.currentOperation.destinationFillChange = 0;
 		}
 	};
 
