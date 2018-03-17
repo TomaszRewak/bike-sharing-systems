@@ -129,6 +129,7 @@ def learn_nn_distance_function():
 
 
 def get_time_predictions():
+    # 01 00 00
     # 03 00 00
     # 06 00 00
     # 07 00 00
@@ -138,8 +139,8 @@ def get_time_predictions():
     # 09 00 00
     # 10 30 00
     # 12 00 00
-    # 14 00 00
     # 13 00 00
+    # 14 00 00
     # 15 00 00
     # 15 30 00
     # 16 00 00
@@ -149,6 +150,7 @@ def get_time_predictions():
     # 18 00 00
     # 19 30 00
     # 21 00 00
+    # 23 00 00
     pickle_file = './resources/pickled/predictions.pickle'
     old_predictions = []
 
@@ -157,8 +159,8 @@ def get_time_predictions():
         old_predictions = unpickle_time_predictions(pickle_file)
 
     times = [
-        datetime(2019, 6, 10, 7, 0, 0),
-        datetime(2019, 6, 15, 7, 0, 0)
+        datetime(2019, 6, 10, 23, 0, 0),
+        datetime(2019, 6, 15, 23, 0, 0)
     ]
 
     stations = load_stations('../resources/raw/rides/stations.csv')

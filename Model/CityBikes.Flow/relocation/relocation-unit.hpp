@@ -14,7 +14,7 @@ namespace CityBikes::Flow::Relocation
 		size_t destination;
 
 		/// <summary> When is destination going to be reached </summary>
-		size_t timeUntilDestination;
+		float timeUntilDestination;
 
 		RelocationUnit(size_t position, size_t currentLoad, size_t maxLoad) :
 			destination(position),

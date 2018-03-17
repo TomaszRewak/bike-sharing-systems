@@ -129,16 +129,25 @@
     <None Include="rides\ride.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common\day.hpp" />
-    <ClInclude Include="distance\utils\distance-functions-reader.hpp" />
-    <ClInclude Include="features\features-reader.hpp" />
-    <ClInclude Include="flow-time\flow-time-matrix-offset.hpp" />
-    <ClInclude Include="flow-time\structure\flow-time-matrix-frame.hpp" />
-    <ClInclude Include="flow-time\flow-time-matrix.hpp" />
+    <ClInclude Include="time\day.hpp" />
+    <ClInclude Include="fill-level\fill-level-prediction-frame.hpp" />
+    <ClInclude Include="fill-level\fill-level-prediction.hpp" />
+    <ClInclude Include="flow\flow-action.hpp" />
+    <ClInclude Include="flow\flow-instance.hpp" />
+    <ClInclude Include="flow\flow-target.hpp" />
+    <ClInclude Include="demand\demand-prediction-frame.hpp" />
+    <ClInclude Include="demand\demand-prediction.hpp" />
+    <ClInclude Include="demand\utils\demand-prediction-reader.hpp" />
+    <ClInclude Include="day-distance\utils\day-distance-functions-reader.hpp" />
+    <ClInclude Include="flow-time\flow-time-prediction-matrix.hpp" />
+    <ClInclude Include="flow-time\flow-time-prediction.hpp" />
     <ClInclude Include="flow-time\utils\flow-time-matrices-reader.hpp" />
-    <ClInclude Include="distance\distance-function.hpp" />
-    <ClInclude Include="predictions\utils\prediction-writer.hpp" />
+    <ClInclude Include="day-distance\day-distance-function.hpp" />
+    <ClInclude Include="fill-level\utils\fill-level-prediction-reader.hpp" />
     <ClInclude Include="rides\utils\ride-reader.hpp" />
+    <ClInclude Include="supply\supply-prediction-distribution.hpp" />
+    <ClInclude Include="supply\supply-prediction-matrix.hpp" />
+    <ClInclude Include="supply\supply-prediction.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

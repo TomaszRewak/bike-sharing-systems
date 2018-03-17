@@ -1,10 +1,7 @@
 #pragma once
 
 #include "../../CityBikes.Data/rides/utils/ride-reader.hpp"
-#include "../../CityBikes.Model/flow-distribution-model-simulation.hpp"
 #include "../../CityBikes.DataProcessing/rides/rides-mapping.hpp"
-#include "../../CityBikes.Data/predictions/utils/prediction-writer.hpp"
-#include "../../CityBikes.Test/model-integrity/total-value.hpp"
 
 namespace CityBikes::Processes
 {
@@ -28,9 +25,7 @@ namespace CityBikes::Processes
 				initialState,
 				true);
 
-			simulation.runTo(timeFrames);
-
-			auto model = simulation.getModel();
+			auto model = simulation.run(timeFrames);
 
 			auto fileName = Data::Common::Day::to_string(day.first);
 			Data::Predictions::Utils::PredictionWriter::writeData(model, "../../Resources/processed/base_predictions/" + fileName);

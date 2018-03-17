@@ -127,12 +127,13 @@
     <ClCompile Include="test\_.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="processes\demand-examples.hpp" />
     <ClInclude Include="processes\flow-examples.hpp" />
     <ClInclude Include="processes\flow-test.hpp" />
     <ClInclude Include="processes\model-test.hpp" />
-    <ClInclude Include="processes\network-fill-test.hpp" />
     <ClInclude Include="processes\prediction-test.hpp" />
     <ClInclude Include="processes\redistribution-test.hpp" />
+    <ClInclude Include="processes\static-analysis-test.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

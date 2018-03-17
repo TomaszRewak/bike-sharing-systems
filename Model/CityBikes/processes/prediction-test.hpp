@@ -1,12 +1,13 @@
 #pragma once
 
 #include "../../CityBikes.Data/rides/utils/ride-reader.hpp"
-#include "../../CityBikes.Model/flow-distribution-model-simulation.hpp"
+#include "../../CityBikes.Data/day-distance/utils/day-distance-functions-reader.hpp"
 #include "../../CityBikes.DataProcessing/rides/rides-mapping.hpp"
-#include "../../CityBikes.DataProcessing/prediction/prediction-offset.hpp"
-#include "../../CityBikes.Data/predictions/utils/prediction-writer.hpp"
-#include "../../CityBikes.Data/distance/utils/distance-functions-reader.hpp"
-#include "../../CityBikes.Test/model-integrity/total-value.hpp"
+#include "../../CityBikes.Model/flow-distribution-simulation.hpp"
+#include "../../CityBikes.Model/flow-prediction-simulation.hpp"
+#include "../../CityBikes.Model/prediction/demand-analysis.hpp"
+#include "../../CityBikes.Model/prediction/supply-analysis.hpp"
+#include "../../CityBikes.DataProcessing/fill-level/error.hpp"
 
 #include <iostream>
 #include <limits>
@@ -14,100 +15,153 @@
 namespace CityBikes::Processes
 {
 	template<size_t Nodes>
-	Model::FlowDistributionModel<Nodes> testPredictionPrepareModel(std::vector<std::vector<Model::Data::FlowInstance>> examples, size_t timeFrames, size_t initialStationSize)
-	{
-		Model::Structure::NetworkState<Nodes> initialState;
-		for (auto& station : initialState.nodes)
-			station.value = initialStationSize;
-
-		std::vector<Model::Data::FlowAction> actions;
-		for (auto& example : examples)
-			for (auto& flowInstance : example)
-				actions.push_back(Model::Data::FlowAction(flowInstance, 1. / examples.size()));
-
-		Model::Configuration::FlowDistributionModelSimulationConfiguration simulationConfiguration(actions);
-		Model::FlowDistributionModelSimulation<Nodes> simulation(
-			simulationConfiguration,
-			initialState,
-			false);
-
-		return simulation.run(timeFrames);
-	}
-
-	template<size_t Nodes>
-	void testPrediction(size_t timeFrames, size_t initialStationSize, size_t examplesNumber)
+	void testPrediction(size_t timeFrames)
 	{
 		auto rides = Data::Rides::Utils::RideReader::readData("../../Resources/processed/rides.rides");
-		auto distanceFunctions = Data::Distance::Utils::DistanceFunctionsReader::readData("../../Resources/learning/nn.model");
+		auto distanceFunctions = Data::DayDistance::Utils::DayDistanceFunctionReader::readData("../../Resources/learning/nn.model");
 		auto examples = DataProcessing::Rides::RidesMapper::map(rides, timeFrames);
 
-		float comparedToAll = 0;
-		float comparedToEmpty = 0;
+		Data::FillLevel::FillLevelPredictionFrame<Nodes> initialState;
+		for (auto& station : initialState)
+			station = 1000;
 
 		for (auto& example : examples)
 		{
-			std::vector<std::vector<Model::Data::FlowInstance>> examplesA;
-			std::vector<std::vector<Model::Data::FlowInstance>> examplesB;
-			std::vector<std::vector<Model::Data::FlowInstance>> examplesC;
-			std::vector<std::vector<Model::Data::FlowInstance>> examplesD;
-			std::vector<std::vector<Model::Data::FlowInstance>> examplesE;
+			std::map<Data::Time::Day, std::vector<Data::Flow::FlowInstance>> otherExamples;
+			for (auto& otherExample : examples)
+				if (otherExample.first != example.first)
+					otherExamples.emplace(otherExample.first, otherExample.second);
+
+			std::cout << Data::Time::Day::to_string(example.first) << "\t";
+
+			Model::FlowDistributionSimulation<Nodes> distributionSimulation(
+				initialState,
+				example.second);
+			distributionSimulation.run(timeFrames / 2);
+
+			std::vector<Data::Flow::FlowAction> noActions;
+			std::vector<Data::Flow::FlowAction> randomDayActions;
+			std::vector<Data::Flow::FlowAction> otherDaysActions;
+			std::vector<Data::Flow::FlowAction> selectedDaysActions;
+			std::vector<Data::Flow::FlowAction> sameDayActions;
 
 			{
-				examplesA.push_back(example.second);
+
 			}
 
 			{
-				for (auto& otherExample : examples)
-					if (otherExample.first != example.first)
-						examplesB.push_back(otherExample.second);
+				auto randomExample = otherExamples.begin();
+				std::advance(randomExample, std::rand() % otherExamples.size());
+
+				for (const Data::Flow::FlowInstance& instance : randomExample->second)
+					randomDayActions.push_back(Data::Flow::FlowAction(instance, 1.));
 			}
 
 			{
-				std::vector<std::pair<float, Data::Common::Day>> sortedDays;
+				for (auto& otherExample : otherExamples)
+					for (const Data::Flow::FlowInstance& instance : otherExample.second)
+						otherDaysActions.push_back(Data::Flow::FlowAction(instance, 1. / otherExamples.size()));
+			}
 
-				for (auto otherExample : examples)
-					if (otherExample.first != example.first)
-						sortedDays.push_back(std::make_pair(distanceFunctions[example.first][otherExample.first], otherExample.first));
+			{
+				std::vector<std::pair<Data::Time::Day, double>> sortedDays;
+
+				for (auto otherExample : otherExamples)
+					sortedDays.push_back(std::make_pair(otherExample.first, distanceFunctions[example.first][otherExample.first]));
 
 				std::sort(
 					sortedDays.begin(),
 					sortedDays.end(),
-					[](auto a, auto b) { return a.first < b.first; }
+					[](auto a, auto b) { return a.second < b.second; }
 				);
 
-				for (size_t i = 0; i < 100; i++)
-				{
-					examplesC.push_back(examples[sortedDays[i].second]);
-				}
+				size_t selectedInstances = 100;
+
+				for (size_t i = 0; i < selectedInstances; i++)
+					for (const Data::Flow::FlowInstance& instance : otherExamples[sortedDays[i].first])
+						selectedDaysActions.push_back(Data::Flow::FlowAction(instance, 1. / selectedInstances));
 			}
 
 			{
-				auto example = examples.begin();
-				std::advance(example, std::rand() % examples.size());
-
-				examplesD.push_back(example->second);
+				for (const Data::Flow::FlowInstance& instance : example.second)
+					sameDayActions.push_back(Data::Flow::FlowAction(instance, 1.));
 			}
 
-			{
+			Data::Demand::DemandPrediction<Nodes> noActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(noActions, timeFrames);
+			Data::Demand::DemandPrediction<Nodes> randomDayActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(randomDayActions, timeFrames);
+			Data::Demand::DemandPrediction<Nodes> otherDaysActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(otherDaysActions, timeFrames);
+			Data::Demand::DemandPrediction<Nodes> selectedDaysActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(selectedDaysActions, timeFrames);
+			Data::Demand::DemandPrediction<Nodes> sameDayActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(sameDayActions, timeFrames);
 
-			}
+			Data::Supply::SupplyPrediction<Nodes> noActionsAvgSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeAvgSupply(noActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> randomDayActionsAvgSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeAvgSupply(randomDayActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> otherDaysActionsAvgSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeAvgSupply(otherDaysActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> selectedDaysActionsAvgSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeAvgSupply(selectedDaysActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> sameDayActionsAvgSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeAvgSupply(sameDayActions, timeFrames);
 
-			auto modelA = testPredictionPrepareModel<Nodes>(examplesA, timeFrames, initialStationSize); // base
-			auto modelB = testPredictionPrepareModel<Nodes>(examplesB, timeFrames, initialStationSize); // all
-			auto modelC = testPredictionPrepareModel<Nodes>(examplesC, timeFrames, initialStationSize); // selected
-			auto modelD = testPredictionPrepareModel<Nodes>(examplesD, timeFrames, initialStationSize); // random
-			auto modelE = testPredictionPrepareModel<Nodes>(examplesE, timeFrames, initialStationSize); // empty
+			Data::Supply::SupplyPrediction<Nodes> noActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(noActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> randomDayActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(randomDayActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> otherDaysActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(otherDaysActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> selectedDaysActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(selectedDaysActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> sameDayActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(sameDayActions, timeFrames);
 
-			float diffBase = DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelA);
-			float diffAll = DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelB);
-			float diffSelected = DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelC);
-			float diffRandom = DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelD);
-			float diffEmpty = DataProcessing::Prediction::PredictionOffset::computeOffset(modelA, modelE);
+			Data::FillLevel::FillLevelPredictionFrame<Nodes> currentState = distributionSimulation.getCurrentState();
+			std::vector<Data::Flow::FlowTarget> ongoingFlow;
+			for (const Data::Flow::FlowInstance& ongoingInstance : distributionSimulation.getOngoingInstances())
+				ongoingFlow.push_back(ongoingInstance.source);
 
-			comparedToAll += diffAll - diffSelected;
-			comparedToEmpty += diffEmpty - diffSelected;
+			size_t startTimeFrame = distributionSimulation.getTimeFrame();
+			size_t endTimeFrame = timeFrames;
 
-			std::cout << diffBase << " " <<  diffAll << " " << diffSelected << " " << diffRandom << " " << diffEmpty << " | " << comparedToAll << " " << comparedToEmpty << std::endl;
+			Data::FillLevel::FillLevelPrediction<Nodes> noActionsPrediction = Model::FlowPredictionSimulation<Nodes>::predict(
+				currentState, ongoingFlow,
+				noActionsFullSupply,
+				noActionsDemand,
+				noActionsFullSupply,
+				startTimeFrame, endTimeFrame);
+
+			Data::FillLevel::FillLevelPrediction<Nodes> otherDaysActionsPrediction = Model::FlowPredictionSimulation<Nodes>::predict(
+				currentState, ongoingFlow,
+				otherDaysActionsAvgSupply,
+				otherDaysActionsDemand,
+				otherDaysActionsAvgSupply,
+				startTimeFrame, endTimeFrame);
+
+			Data::FillLevel::FillLevelPrediction<Nodes> selectedDaysDemandActionsPrediction = Model::FlowPredictionSimulation<Nodes>::predict(
+				currentState, ongoingFlow,
+				selectedDaysActionsAvgSupply,
+				selectedDaysActionsDemand,
+				selectedDaysActionsAvgSupply,
+				startTimeFrame, endTimeFrame);
+
+			Data::FillLevel::FillLevelPrediction<Nodes> selectedDaysActionsPrediction = Model::FlowPredictionSimulation<Nodes>::predict(
+				currentState, ongoingFlow,
+				selectedDaysActionsAvgSupply,
+				selectedDaysActionsDemand,
+				selectedDaysActionsFullSupply,
+				startTimeFrame, endTimeFrame);
+
+			Data::FillLevel::FillLevelPrediction<Nodes> sameDayActionsPrediction = Model::FlowPredictionSimulation<Nodes>::predict(
+				currentState, ongoingFlow,
+				sameDayActionsFullSupply,
+				sameDayActionsDemand,
+				sameDayActionsFullSupply,
+				startTimeFrame, endTimeFrame);
+
+			Data::FillLevel::FillLevelPrediction<Nodes> realPrediction = distributionSimulation.run(timeFrames);
+
+			double noActionsDiff = DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, noActionsPrediction);
+			double otherDaysActionsDiff = DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, otherDaysActionsPrediction);
+			double selectedDaysActionsDemandDiff = DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, selectedDaysDemandActionsPrediction);
+			double selectedDaysActionsDiff = DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, selectedDaysActionsPrediction);
+			double sameDayActionsDiff = DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, sameDayActionsPrediction);
+
+			std::cout << 
+				noActionsDiff << "\t" << 
+				otherDaysActionsDiff << "\t" <<
+				selectedDaysActionsDemandDiff << "\t" <<
+				selectedDaysActionsDiff << "\t" <<
+				sameDayActionsDiff << std::endl;
 		}
 
 		std::getchar();

@@ -16,14 +16,12 @@ namespace CityBikes::Flow::Configuration
 			singleOperationTime(singleOperationTime)
 		{ }
 
-		size_t getFillnessChangeTime(int fillChange) const
+		float getFillnessChangeTime(int fillChange) const
 		{
 			if (fillChange == 0)
 				return 0;
 
-			return (size_t)std::round(
-				baseOperationTime + std::abs(fillChange) * singleOperationTime
-			);
+			return baseOperationTime + std::abs(fillChange) * singleOperationTime;
 		}
 	};
 }

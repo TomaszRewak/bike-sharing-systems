@@ -125,15 +125,10 @@
     <ClCompile Include="test\_.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="configuration\flow-distribution-model-simulation-configuration.hpp" />
-    <ClInclude Include="data\flow-action.hpp" />
-    <ClInclude Include="data\flow-instance.hpp" />
-    <ClInclude Include="data\flow-target.hpp" />
-    <ClInclude Include="flow-distribution-model-simulation.hpp" />
-    <ClInclude Include="flow-distribution-model.hpp" />
-    <ClInclude Include="memory\flow-distribution-model-memory.hpp" />
-    <ClInclude Include="structure\network-node.hpp" />
-    <ClInclude Include="structure\network-state.hpp" />
+    <ClInclude Include="flow-prediction-simulation.hpp" />
+    <ClInclude Include="prediction\demand-analysis.hpp" />
+    <ClInclude Include="flow-distribution-simulation.hpp" />
+    <ClInclude Include="prediction\supply-analysis.hpp" />
     <ClInclude Include="validation\task-chain-validator.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -52,6 +52,9 @@ namespace CityBikes::Flow::Relocation::Decision
 			int decision
 		) const
 		{
+			//for (; timeFrame < timeFrames.size(); timeFrame++)
+			//	timeFrames[timeFrame].nodes[node].value += value;
+
 			distributionModel.alter(relocationUnit.timeUntilDestination, relocationUnit.destination, decision);
 			apply(relocationUnit, decision);
 		}

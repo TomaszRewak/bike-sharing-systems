@@ -1,12 +1,7 @@
 #pragma once
 
 #include "../../CityBikes.Data/rides/utils/ride-reader.hpp"
-#include "../../CityBikes.Model/flow-distribution-model-simulation.hpp"
 #include "../../CityBikes.DataProcessing/rides/rides-mapping.hpp"
-#include "../../CityBikes.DataProcessing/prediction/prediction-offset.hpp"
-#include "../../CityBikes.Data/predictions/utils/prediction-writer.hpp"
-#include "../../CityBikes.Data/features/features-reader.hpp"
-#include "../../CityBikes.Test/model-integrity/total-value.hpp"
 #include "../../CityBikes.Data/flow-time/utils/flow-time-matrices-reader.hpp"
 
 #include <iostream>
@@ -19,8 +14,8 @@ namespace CityBikes::Processes
 	{
 		auto matrices = Data::FlowTime::Utils::FlowTimeMatricesReader::readData<Nodes>("../../Resources/processed/time_matrices.time", timeFrames);
 
-		size_t source = 1;// std::rand() % Nodes;
-		size_t destination = 0;// std::rand() % Nodes;
+		size_t source = 0;// std::rand() % Nodes;
+		size_t destination = 2;// std::rand() % Nodes;
 
 		std::cout << source << " " << destination << std::endl;
 

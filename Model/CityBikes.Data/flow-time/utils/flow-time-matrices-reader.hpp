@@ -5,9 +5,9 @@
 #include <iomanip>
 #include <map>
 
-#include "../flow-time-matrix.hpp"
-#include "../../../CityBikes.DataProcessing/common/time-processing.hpp"
-#include "../../common/day.hpp"
+#include "../flow-time-prediction.hpp"
+#include "../../../CityBikes.DataProcessing/time/time-series-processing.hpp"
+#include "../../time/day.hpp"
 
 namespace CityBikes::Data::FlowTime::Utils
 {
@@ -15,10 +15,12 @@ namespace CityBikes::Data::FlowTime::Utils
 	{
 	public:
 		template<size_t Nodes>
-		static std::map<Common::Day, FlowTimeMatrix<Nodes>> readData(std::experimental::filesystem::path path, size_t timeFrames)
+		static std::map<Time::Day, FlowTimePrediction<Nodes>> readData(std::experimental::filesystem::path path, size_t timeFrames)
 		{
-			std::map<Common::Day, FlowTimeMatrix<Nodes>> result;
-			DataProcessing::Common::TimeQuantizer timeQuantizer(timeFrames);
+			std::map<Time::Day, FlowTimePrediction<Nodes>> result;
+
+			DataProcessing::Time::TimeQuantizer timeQuantizer(timeFrames);
+			DataProcessing::Time::TimeSeriesQuantizer timeSeriesQuantizer(timeFrames);
 
 			std::ifstream file(path);
 
@@ -27,17 +29,17 @@ namespace CityBikes::Data::FlowTime::Utils
 
 			for (size_t m = 0; m < matricesNumber; m++)
 			{
-				FlowTimeMatrix<Nodes> matrix;
+				FlowTimePrediction<Nodes> matrix(timeFrames);
 
 				std::tm day;
 				file >> std::get_time(&day, "%d.%m.%Y");
 
-				size_t timeFramesNumber;
-				file >> timeFramesNumber;
+				size_t timeStamps;
+				file >> timeStamps;
 
-				std::vector<std::pair<size_t, std::array<std::array<size_t, Nodes>, Nodes>>> baseFrames;
+				std::array<std::array<std::vector<std::pair<std::tm, double>>, Nodes>, Nodes> baseValues;
 
-				for (size_t timeFrame = 0; timeFrame < timeFramesNumber; timeFrame++)
+				for (size_t timeStamp = 0; timeStamp < timeStamps; timeStamp++)
 				{
 					std::array<std::array<size_t, Nodes>, Nodes> baseFrame;
 
@@ -48,45 +50,26 @@ namespace CityBikes::Data::FlowTime::Utils
 					file >> stationsNumber;
 
 					for (size_t source = 0; source < Nodes; source++)
+					{
 						for (size_t destination = 0; destination < Nodes; destination++)
-							file >> baseFrame[source][destination];
+						{
+							double value;
+							file >> value;
 
-					baseFrames.push_back(
-						std::make_pair(
-							timeQuantizer.quantize(time),
-							baseFrame
-						)
-					);
+							baseValues[source][destination].push_back(std::make_pair(time, value));
+						}
+					}
 				}
 
-				for (size_t timeFrame = 0; timeFrame < timeFrames; timeFrame++)
+				for (size_t source = 0; source < Nodes; source++)
 				{
-					Structure::FlowTimeMatrixFrame<Nodes> flowTimeFrame;
+					for (size_t destination = 0; destination < Nodes; destination++)
+					{
+						std::vector<double> quantizedValues = timeSeriesQuantizer.quantize(baseValues[source][destination]);
 
-					size_t interpolationFrameA = 0;
-					size_t interpolationFrameB = baseFrames.size() - 1;
-
-					while (interpolationFrameA < interpolationFrameB && baseFrames[interpolationFrameA + 1].first <= timeFrame)
-						interpolationFrameA++;
-					while (interpolationFrameB > interpolationFrameA && baseFrames[interpolationFrameB - 1].first >= timeFrame)
-						interpolationFrameB--;
-
-					size_t timeFrameA = baseFrames[interpolationFrameA].first;
-					size_t timeFrameB = baseFrames[interpolationFrameB].first;
-
-					auto& matrixA = baseFrames[interpolationFrameA].second;
-					auto& matrixB = baseFrames[interpolationFrameB].second;
-
-					double interpolationFactor = (double)(timeFrame - timeFrameA) / (timeFrameB - timeFrameA);
-					interpolationFactor = std::max(0., std::min(1., interpolationFactor));
-
-					for (size_t source = 0; source < Nodes; source++)
-						for (size_t destination = 0; destination < Nodes; destination++)
-							flowTimeFrame[source][destination] = timeQuantizer.quantize(
-								matrixA[source][destination] + interpolationFactor * (matrixB[source][destination] - matrixA[source][destination])
-							);
-
-					matrix.timeFrames.push_back(flowTimeFrame);
+						for (size_t timeFrame = 0; timeFrame < timeFrames; timeFrame++)
+							matrix[timeFrame][source][destination] = timeQuantizer.quantize(quantizedValues[timeFrame]);
+					}
 				}
 
 				result.emplace(day, matrix);

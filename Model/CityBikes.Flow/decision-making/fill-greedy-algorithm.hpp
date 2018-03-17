@@ -39,7 +39,7 @@ namespace CityBikes::Flow::DecisionMaking
 
 			Decision::FillDecision bestDecision(relocationUnit.destination);
 
-			for (int change = minChange; change <= maxChange; change++)
+			for (int change = 1; change <= maxChange; change++)
 			{
 				size_t decisionScore = score(
 					alteration,
@@ -53,6 +53,26 @@ namespace CityBikes::Flow::DecisionMaking
 					bestDecision.operation.change = change;
 					bestDecision.score = decisionScore;
 				}
+				else if (decisionScore < bestDecision.score)
+					break;
+			}
+
+			for (int change = -1; change >= minChange; change--)
+			{
+				size_t decisionScore = score(
+					alteration,
+					relocationUnit.timeUntilDestination,
+					relocationUnit.destination,
+					change
+				);
+
+				if (decisionScore > bestDecision.score)
+				{
+					bestDecision.operation.change = change;
+					bestDecision.score = decisionScore;
+				}
+				else if (decisionScore < bestDecision.score)
+					break;
 			}
 
 			// Return decision

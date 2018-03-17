@@ -1,26 +1,32 @@
 #include "processes/model-test.hpp"
-#include "processes/flow-examples.hpp"
 #include "processes/prediction-test.hpp"
-#include "processes/flow-test.hpp"
-#include "processes/network-fill-test.hpp"
-#include "processes/redistribution-test.hpp"
 
-const int stations = 74;
+#include "processes/flow-test.hpp"
+
+//#include "processes/flow-examples.hpp"
+//#include "processes/redistribution-test.hpp"
+//#include "processes/static-analysis-test.hpp"
+//#include "processes/demand-examples.hpp"
+
+const int Nodes = 74;
 
 int main()
 {
 	std::srand(time(NULL));
 
-	const size_t timeFrames = 1440;
+	const size_t timeFrames = 144;
 	const size_t initialStationSize = 5;
 	const size_t examplesNumber = 100;
 
-	//CityBikes::Processes::testModel<stations>(timeFrames, initialStationSize, examplesNumber);
-	//CityBikes::Processes::computeFlowExamples<stations>(timeFrames);
-	//CityBikes::Processes::testPrediction<stations>(timeFrames, initialStationSize, examplesNumber);
-	//CityBikes::Processes::testFlow<stations>(timeFrames, initialStationSize, examplesNumber);
-	//CityBikes::Processes::testNetworkFill<stations>(timeFrames, initialStationSize, examplesNumber);
-	CityBikes::Processes::testRedistribution<stations>(timeFrames);
+	//CityBikes::Processes::testModel<Nodes>(timeFrames, initialStationSize, examplesNumber);
+	//CityBikes::Processes::testPrediction<Nodes>(timeFrames);
+
+	//CityBikes::Processes::testFlow<Nodes>(timeFrames, initialStationSize, examplesNumber);
+
+	//CityBikes::Processes::computeFlowExamples<Nodes>(timeFrames);
+	//CityBikes::Processes::testRedistribution<Nodes>(timeFrames);
+	//CityBikes::Processes::testStaticAnalysis<Nodes>(timeFrames, examplesNumber)
+	//CityBikes::Processes::computeDemandExamples<Nodes>();
 
 	return 0;
 }

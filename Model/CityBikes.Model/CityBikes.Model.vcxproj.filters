@@ -20,34 +20,19 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="data\flow-instance.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="data\flow-action.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="flow-distribution-model.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="structure\network-state.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="structure\network-node.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="flow-distribution-model-simulation.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="data\flow-target.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="validation\task-chain-validator.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="configuration\flow-distribution-model-simulation-configuration.hpp">
+    <ClInclude Include="prediction\demand-analysis.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="memory\flow-distribution-model-memory.hpp">
+    <ClInclude Include="prediction\supply-analysis.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="flow-distribution-simulation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="flow-prediction-simulation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

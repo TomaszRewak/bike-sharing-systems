@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../CityBikes.Model/flow-distribution-model.hpp"
+#include "../../CityBikes.Data/fill-level/fill-level-prediction.hpp"
 
 namespace CityBikes::DataProcessing::Validation
 {

@@ -9,7 +9,7 @@ def load_weather(file_path: str) -> Dict[str, Weather]:
         reader = csv.reader(file, delimiter=',')
 
         weather = {
-            '-'.join(row[2:5])
+            '.'.join(row[4:1:-1])
             :
             Weather(
                 float(row[5]),

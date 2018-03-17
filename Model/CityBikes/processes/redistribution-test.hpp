@@ -1,10 +1,7 @@
 #pragma once
 
 #include "../../CityBikes.Data/rides/utils/ride-reader.hpp"
-#include "../../CityBikes.Model/flow-distribution-model-simulation.hpp"
 #include "../../CityBikes.DataProcessing/rides/rides-mapping.hpp"
-#include "../../CityBikes.Data/predictions/utils/prediction-writer.hpp"
-#include "../../CityBikes.Test/model-integrity/total-value.hpp"
 #include "../../CityBikes.Flow/flow-relocation-simulation.hpp"
 #include "../../CityBikes.DataProcessing/validation/availability-validation.hpp"
 
@@ -18,7 +15,7 @@ namespace CityBikes::Processes
 		Model::Structure::NetworkState<Nodes> initialState,
 		Flow::FlowRelocationModel initialModel,
 		const Flow::Configuration::SimulationConfiguration& simulationConfiguration,
-		const Data::FlowTime::FlowTimeMatrix<Nodes> flowMatrix
+		const Data::FlowTime::FlowTimePrediction<Nodes> flowMatrix
 	)
 	{
 		Flow::FlowRelocationSimulation<Nodes> redistributionSimulation(
@@ -102,7 +99,7 @@ namespace CityBikes::Processes
 				Flow::Configuration::SchedulingConfiguration(
 					Flow::Configuration::ThresholdConfiguration(2, 10),
 					Flow::Configuration::OperationTimeConfiguration(5, 0.5),
-					Flow::Configuration::SchedulingSpaceConfiguration(20, 10)
+					Flow::Configuration::SchedulingSpaceConfiguration(20, 25)
 				),
 				Model::Configuration::FlowDistributionModelSimulationConfiguration(flowActions),
 				Model::Configuration::FlowDistributionModelSimulationConfiguration(predictionActions)
@@ -113,7 +110,7 @@ namespace CityBikes::Processes
 				Flow::Configuration::SchedulingConfiguration(
 					Flow::Configuration::ThresholdConfiguration(2, 10),
 					Flow::Configuration::OperationTimeConfiguration(5, 0.5),
-					Flow::Configuration::SchedulingSpaceConfiguration(20, 10)
+					Flow::Configuration::SchedulingSpaceConfiguration(20, 25)
 				),
 				Model::Configuration::FlowDistributionModelSimulationConfiguration(flowActions),
 				Model::Configuration::FlowDistributionModelSimulationConfiguration(bestPredictionActions)
@@ -124,7 +121,7 @@ namespace CityBikes::Processes
 				Flow::Configuration::SchedulingConfiguration(
 					Flow::Configuration::ThresholdConfiguration(2, 10),
 					Flow::Configuration::OperationTimeConfiguration(5, 0.5),
-					Flow::Configuration::SchedulingSpaceConfiguration(20, 10)
+					Flow::Configuration::SchedulingSpaceConfiguration(20, 25)
 				),
 				Model::Configuration::FlowDistributionModelSimulationConfiguration(flowActions),
 				Model::Configuration::FlowDistributionModelSimulationConfiguration(flowActions)
@@ -134,8 +131,8 @@ namespace CityBikes::Processes
 				Flow::Configuration::RelocationSchedulingConfiguration(30),
 				Flow::Configuration::SchedulingConfiguration(
 					Flow::Configuration::ThresholdConfiguration(2, 10),
-					Flow::Configuration::OperationTimeConfiguration(2, 0.5),
-					Flow::Configuration::SchedulingSpaceConfiguration(20, 10)
+					Flow::Configuration::OperationTimeConfiguration(8, 0.5),
+					Flow::Configuration::SchedulingSpaceConfiguration(20, 25)
 				),
 				Model::Configuration::FlowDistributionModelSimulationConfiguration(flowActions),
 				Model::Configuration::FlowDistributionModelSimulationConfiguration(noActions)

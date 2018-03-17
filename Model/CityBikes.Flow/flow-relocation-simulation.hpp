@@ -1,7 +1,8 @@
 #pragma once
 
 #include "flow-relocation-model.hpp"
-#include "../CityBikes.Model/flow-distribution-model-simulation.hpp"
+#include "../CityBikes.Model/flow-distribution-simulation.hpp"
+#include "../CityBikes.Model/flow-prediction-simulation.hpp"
 #include "scheduling/flow-relocation-scheduler.hpp"
 #include "configuration/simulation-configuration.hpp"
 
@@ -13,7 +14,7 @@ namespace CityBikes::Flow
 	private:
 		const Configuration::SimulationConfiguration& configuration;
 
-		const Data::FlowTime::FlowTimeMatrix<Nodes>& flowTimeMatrix;
+		const Data::FlowTime::FlowTimePrediction<Nodes>& flowTimeMatrix;
 
 		Model::FlowDistributionModelSimulation<Nodes> realFlowSimulation;
 		Model::FlowDistributionModelSimulation<Nodes> predictedFlowSimulation;
@@ -26,7 +27,7 @@ namespace CityBikes::Flow
 			Model::Structure::NetworkState<Nodes> initialState,
 			FlowRelocationModel relocationModel,
 			const Configuration::SimulationConfiguration& configuration,
-			const Data::FlowTime::FlowTimeMatrix<Nodes>& flowTimeMatrix
+			const Data::FlowTime::FlowTimePrediction<Nodes>& flowTimeMatrix
 		) :
 			configuration(configuration),
 			flowTimeMatrix(flowTimeMatrix),
@@ -50,7 +51,7 @@ namespace CityBikes::Flow
 			Model::FlowDistributionModelSimulation<Nodes> predictionWindowSimulation = predictedFlowSimulation;
 			Model::FlowDistributionModel<Nodes> predictedWindow = predictionWindowSimulation.run(configuration.relocationSchedulingConfiguration.predictionWindow);
 
-			Data::FlowTime::FlowTimeMatrixOffset<Nodes> flowTimeMatrixOffset(
+			Data::FlowTime::FlowTimePredictionOffset<Nodes> flowTimeMatrixOffset(
 				flowTimeMatrix,
 				timeFrame);
 			Relocation::Decision::FillDecisionApplier<Nodes> fillDecisionApplier(
@@ -80,7 +81,7 @@ namespace CityBikes::Flow
 
 				for (auto& operation : operations)
 				{
-					if (relocationUnit.timeUntilDestination > 0)
+					if (relocationUnit.timeUntilDestination >= 1)
 						break;
 
 					decisionApplier.check(relocationUnit, getCurrentState(), operation);
@@ -89,7 +90,7 @@ namespace CityBikes::Flow
 			}
 
 			for (auto& relocationUnit : relocationModel.relocationUnits)
-				if (relocationUnit.timeUntilDestination > 0)
+				if (relocationUnit.timeUntilDestination >= 1)
 					relocationUnit.timeUntilDestination--;
 
 			timeFrame++;

@@ -1,26 +1,27 @@
 #pragma once
 
 #include "../../CityBikes.Data/rides/ride.hpp"
-#include "../common/time-processing.hpp"
-#include "../../CityBikes.Data/common/day.hpp"
-#include "../../CityBikes.Model/data/flow-instance.hpp"
+#include "../time/time-processing.hpp"
+#include "../../CityBikes.Data/time/day.hpp"
+#include "../../CityBikes.Data/flow/flow-instance.hpp"
 
 #include <vector>
 #include <map>
+#include <algorithm>
 
 namespace CityBikes::DataProcessing::Rides
 {
 	class RidesMapper
 	{
 	public:
-		static std::map<Data::Common::Day, std::vector<Model::Data::FlowInstance>> map(std::vector<Data::Rides::Ride>& rides, size_t timeFrames)
+		static std::map<Data::Time::Day, std::vector<Data::Flow::FlowInstance>> map(std::vector<Data::Rides::Ride>& rides, size_t timeFrames)
 		{
-			std::map<Data::Common::Day, std::vector<Model::Data::FlowInstance>> groupedInstances;
-			Common::TimeQuantizer timeQuantizer(timeFrames);
+			std::map<Data::Time::Day, std::vector<Data::Flow::FlowInstance>> groupedInstances;
+			Time::TimeQuantizer timeQuantizer(timeFrames);
 
 			for (auto& ride : rides)
 			{
-				Model::Data::FlowInstance flow;
+				Data::Flow::FlowInstance flow;
 
 				flow.source.node = ride.sourceStation;
 				flow.source.timeFrame = timeQuantizer.quantize(ride.startTime);
@@ -30,6 +31,8 @@ namespace CityBikes::DataProcessing::Rides
 
 				if (ride.startTime.tm_yday != ride.endTime.tm_yday)
 					flow.destination.timeFrame = timeFrames;
+
+				flow.destination.timeFrame = std::max(flow.source.timeFrame, flow.destination.timeFrame);
 
 				//flow.source.timeFrame = 2;
 				//flow.destination.timeFrame = 10;

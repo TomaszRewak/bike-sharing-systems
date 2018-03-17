@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../../CityBikes.Data/flow-time/flow-time-matrix-offset.hpp"
 #include "../relocation-unit.hpp"
 
 namespace CityBikes::Flow::Relocation::Decision
@@ -9,10 +8,10 @@ namespace CityBikes::Flow::Relocation::Decision
 	class PathDecisionApplier
 	{
 	private:
-		const Data::FlowTime::FlowTimeMatrixOffset<Nodes>& flowMatrix;
+		const Data::FlowTime::FlowTimePredictionOffset<Nodes>& flowMatrix;
 
 	public:
-		PathDecisionApplier(const Data::FlowTime::FlowTimeMatrixOffset<Nodes>& flowMatrix) :
+		PathDecisionApplier(const Data::FlowTime::FlowTimePredictionOffset<Nodes>& flowMatrix) :
 			flowMatrix(flowMatrix)
 		{ }
 
@@ -21,7 +20,7 @@ namespace CityBikes::Flow::Relocation::Decision
 			size_t destination
 		) const
 		{
-			size_t flowDuration = flowMatrix.flowDuration(
+			float flowDuration = flowMatrix.flowDuration(
 				relocationUnit.destination,
 				destination,
 				relocationUnit.timeUntilDestination
