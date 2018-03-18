@@ -23,6 +23,14 @@
     <ClInclude Include="time\day.hpp" />
     <ClInclude Include="day-distance\day-distance-function.hpp" />
     <ClInclude Include="day-distance\utils\day-distance-functions-reader.hpp" />
+    <ClInclude Include="relocation\relocation-unit.hpp" />
+    <ClInclude Include="relocation\relocation-team.hpp" />
+    <ClInclude Include="fill-level-distribution\fill-level-distribution-prediction.hpp" />
+    <ClInclude Include="fill-level-distribution\fill-level-distribution-prediction-frame.hpp" />
+    <ClInclude Include="fill-level-distribution\fill-level-distribution-prediction-node.hpp" />
+    <ClInclude Include="fill-level-distribution\fill-level-distribution-prediction-alteration.hpp" />
+    <ClInclude Include="relocation\relocation-operation.hpp" />
+    <ClInclude Include="relocation\relocation-schedule.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\_.cpp" />

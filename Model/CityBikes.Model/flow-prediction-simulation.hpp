@@ -21,6 +21,7 @@ namespace CityBikes::Model
 		)
 		{
 			Data::FillLevel::FillLevelPrediction<Nodes> prediction;
+
 			std::vector<std::array<double, Nodes>> memory(endTimeFrame - startTimeFrame);
 
 			for (const Data::Flow::FlowTarget& flow : ongoingFlow)
@@ -39,6 +40,7 @@ namespace CityBikes::Model
 						for (const auto& supply : upcomingSupplyPrediction[timeFrame][source][target])
 							if (timeFrame + supply.first < endTimeFrame)
 								memory[timeFrame + supply.first - startTimeFrame][target] += upcomingDemandPrediction[timeFrame][source] * supply.second;
+
 
 			for (size_t timeFrame = startTimeFrame; timeFrame < endTimeFrame; timeFrame++)
 			{

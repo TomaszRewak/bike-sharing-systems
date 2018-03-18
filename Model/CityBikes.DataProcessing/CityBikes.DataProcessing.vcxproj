@@ -125,6 +125,8 @@
     <ClCompile Include="test\_.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="flow\casting.hpp" />
+    <ClInclude Include="flow\filtering.hpp" />
     <ClInclude Include="time\time-processing.hpp" />
     <ClInclude Include="time\time-series-processing.hpp" />
     <ClInclude Include="fill-level\integrity.hpp" />

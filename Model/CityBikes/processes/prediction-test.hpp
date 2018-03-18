@@ -8,6 +8,8 @@
 #include "../../CityBikes.Model/prediction/demand-analysis.hpp"
 #include "../../CityBikes.Model/prediction/supply-analysis.hpp"
 #include "../../CityBikes.DataProcessing/fill-level/error.hpp"
+#include "../../CityBikes.DataProcessing/flow/casting.hpp"
+#include "../../CityBikes.DataProcessing/flow/filtering.hpp"
 
 #include <iostream>
 #include <limits>
@@ -27,16 +29,11 @@ namespace CityBikes::Processes
 
 		for (auto& example : examples)
 		{
-			std::map<Data::Time::Day, std::vector<Data::Flow::FlowInstance>> otherExamples;
-			for (auto& otherExample : examples)
-				if (otherExample.first != example.first)
-					otherExamples.emplace(otherExample.first, otherExample.second);
+			std::map<Data::Time::Day, std::vector<Data::Flow::FlowInstance>> otherExamples = DataProcessing::Flow::Filtering::getOthers(examples, example.first);
 
 			std::cout << Data::Time::Day::to_string(example.first) << "\t";
 
-			Model::FlowDistributionSimulation<Nodes> distributionSimulation(
-				initialState,
-				example.second);
+			Model::FlowDistributionSimulation<Nodes> distributionSimulation(initialState, example.second);
 			distributionSimulation.run(timeFrames / 2);
 
 			std::vector<Data::Flow::FlowAction> noActions;
@@ -106,9 +103,7 @@ namespace CityBikes::Processes
 			Data::Supply::SupplyPrediction<Nodes> sameDayActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(sameDayActions, timeFrames);
 
 			Data::FillLevel::FillLevelPredictionFrame<Nodes> currentState = distributionSimulation.getCurrentState();
-			std::vector<Data::Flow::FlowTarget> ongoingFlow;
-			for (const Data::Flow::FlowInstance& ongoingInstance : distributionSimulation.getOngoingInstances())
-				ongoingFlow.push_back(ongoingInstance.source);
+			std::vector<Data::Flow::FlowTarget> ongoingFlow = DataProcessing::Flow::Casting::getOngoingFlow(distributionSimulation.getOngoingInstances());
 
 			size_t startTimeFrame = distributionSimulation.getTimeFrame();
 			size_t endTimeFrame = timeFrames;
@@ -148,20 +143,14 @@ namespace CityBikes::Processes
 				sameDayActionsFullSupply,
 				startTimeFrame, endTimeFrame);
 
-			Data::FillLevel::FillLevelPrediction<Nodes> realPrediction = distributionSimulation.run(timeFrames);
+			Data::FillLevel::FillLevelPrediction<Nodes> realPrediction = distributionSimulation.run(endTimeFrame);
 
-			double noActionsDiff = DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, noActionsPrediction);
-			double otherDaysActionsDiff = DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, otherDaysActionsPrediction);
-			double selectedDaysActionsDemandDiff = DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, selectedDaysDemandActionsPrediction);
-			double selectedDaysActionsDiff = DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, selectedDaysActionsPrediction);
-			double sameDayActionsDiff = DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, sameDayActionsPrediction);
-
-			std::cout << 
-				noActionsDiff << "\t" << 
-				otherDaysActionsDiff << "\t" <<
-				selectedDaysActionsDemandDiff << "\t" <<
-				selectedDaysActionsDiff << "\t" <<
-				sameDayActionsDiff << std::endl;
+			std::cout <<
+				DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, noActionsPrediction) << "\t" <<
+				DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, otherDaysActionsPrediction) << "\t" <<
+				DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, selectedDaysDemandActionsPrediction) << "\t" <<
+				DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, selectedDaysActionsPrediction) << "\t" <<
+				DataProcessing::FillLevel::Error<Nodes>::computeOffset(realPrediction, sameDayActionsPrediction) << std::endl;
 		}
 
 		std::getchar();

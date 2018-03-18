@@ -14,7 +14,7 @@ namespace CityBikes::Data::FlowTime
 			std::vector<FlowTimePredictionMatrix<Nodes>>(timeFrames)
 		{ }
 
-		float flowDuration(size_t source, size_t destination, size_t timeFrame) const
+		double flowDuration(size_t source, size_t destination, size_t timeFrame) const
 		{
 			timeFrame = std::min(timeFrame, this->size() - 1);
 

@@ -1,8 +1,14 @@
 #pragma once
 
 #include "../../CityBikes.Data/rides/utils/ride-reader.hpp"
+#include "../../CityBikes.Data/day-distance/utils/day-distance-functions-reader.hpp"
 #include "../../CityBikes.DataProcessing/rides/rides-mapping.hpp"
-#include "../../CityBikes.Flow/flow-relocation-simulation.hpp"
+#include "../../CityBikes.Model/flow-distribution-simulation.hpp"
+#include "../../CityBikes.Model/flow-prediction-simulation.hpp"
+#include "../../CityBikes.Model/prediction/demand-analysis.hpp"
+#include "../../CityBikes.Model/prediction/supply-analysis.hpp"
+#include "../../CityBikes.DataProcessing/fill-level/error.hpp"
+#include "../../CityBikes.Redistribution/flow-relocation-simulation.hpp"
 #include "../../CityBikes.DataProcessing/validation/availability-validation.hpp"
 
 #include <iostream>
@@ -10,146 +16,156 @@
 namespace CityBikes::Processes
 {
 	template<size_t Nodes>
-	Model::FlowDistributionModel<Nodes> testRedistributionForConfiguration(
-		size_t timeFrames,
-		Model::Structure::NetworkState<Nodes> initialState,
-		Flow::FlowRelocationModel initialModel,
-		const Flow::Configuration::SimulationConfiguration& simulationConfiguration,
-		const Data::FlowTime::FlowTimePrediction<Nodes> flowMatrix
-	)
-	{
-		Flow::FlowRelocationSimulation<Nodes> redistributionSimulation(
-			initialState,
-			initialModel,
-			simulationConfiguration,
-			flowMatrix
-		);
-
-		return redistributionSimulation.run(timeFrames);
-	}
-
-	template<size_t Nodes>
 	void testRedistribution(size_t timeFrames)
 	{
 		auto rides = Data::Rides::Utils::RideReader::readData("../../Resources/processed/rides.rides");
 		auto flowMatrices = Data::FlowTime::Utils::FlowTimeMatricesReader::readData<Nodes>("../../Resources/processed/time_matrices.time", timeFrames);
-		auto distanceFunctions = Data::Distance::Utils::DistanceFunctionsReader::readData("../../Resources/learning/nn.model");
+		auto distanceFunctions = Data::DayDistance::Utils::DayDistanceFunctionReader::readData("../../Resources/learning/nn.model");
 		auto examples = DataProcessing::Rides::RidesMapper::map(rides, timeFrames);
 
-		size_t exampleNumber = 0;
+		Data::FillLevel::FillLevelPredictionFrame<Nodes> initialState;
+		for (auto& station : initialState)
+			station = 8;
 
-		for (const auto& example : examples)
+		for (auto& example : examples)
 		{
-			exampleNumber++;
+			std::map<Data::Time::Day, std::vector<Data::Flow::FlowInstance>> otherExamples = DataProcessing::Flow::Filtering::getOthers(examples, example.first);
+			Data::FlowTime::FlowTimePrediction<Nodes>& flowTimePrediction = flowMatrices.begin()->second;
 
-			if (exampleNumber < 50)
-				continue;
+			std::cout << Data::Time::Day::to_string(example.first) << "\t";
 
-			std::vector<Model::Data::FlowAction> predictionActions;
+			Model::FlowDistributionSimulation<Nodes> distributionSimulation(initialState, example.second);
+
+			Data::Relocation::RelocationTeam relocationTeamWith0;
+			Data::Relocation::RelocationTeam relocationTeamWith2;
+
 			{
-				for (auto& otherExample : examples)
-					if (otherExample.first != example.first)
-						for (auto& flowInstance : otherExample.second)
-							predictionActions.push_back(Model::Data::FlowAction(flowInstance, 1. / (examples.size() - 1)));
+
+			}
+			
+			{
+				relocationTeamWith2.push_back(Data::Relocation::RelocationUnit(0, 8, 10));
+				relocationTeamWith2.push_back(Data::Relocation::RelocationUnit(0, 8, 10));
 			}
 
-			std::vector<Model::Data::FlowAction> bestPredictionActions;
+
+			std::vector<Data::Flow::FlowAction> noActions;
+			std::vector<Data::Flow::FlowAction> randomDayActions;
+			std::vector<Data::Flow::FlowAction> otherDaysActions;
+			std::vector<Data::Flow::FlowAction> selectedDaysActions;
+			std::vector<Data::Flow::FlowAction> sameDayActions;
+
 			{
-				size_t bestPredictionExamplesNumber = 50;
 
-				std::vector<std::pair<float, Data::Common::Day>> sortedDays;
+			}
 
-				for (auto otherExample : examples)
-					if (otherExample.first != example.first)
-						sortedDays.push_back(std::make_pair(distanceFunctions[example.first][otherExample.first], otherExample.first));
+			{
+				auto randomExample = otherExamples.begin();
+				std::advance(randomExample, std::rand() % otherExamples.size());
+
+				for (const Data::Flow::FlowInstance& instance : randomExample->second)
+					randomDayActions.push_back(Data::Flow::FlowAction(instance, 1.));
+			}
+
+			{
+				for (auto& otherExample : otherExamples)
+					for (const Data::Flow::FlowInstance& instance : otherExample.second)
+						otherDaysActions.push_back(Data::Flow::FlowAction(instance, 1. / otherExamples.size()));
+			}
+
+			{
+				std::vector<std::pair<Data::Time::Day, double>> sortedDays;
+
+				for (auto otherExample : otherExamples)
+					sortedDays.push_back(std::make_pair(otherExample.first, distanceFunctions[example.first][otherExample.first]));
 
 				std::sort(
 					sortedDays.begin(),
 					sortedDays.end(),
-					[](auto a, auto b) { return a.first < b.first; }
+					[](auto a, auto b) { return a.second < b.second; }
 				);
 
+				size_t selectedInstances = 100;
 
-				for (size_t i = 0; i < bestPredictionExamplesNumber; i++)
-				{
-					for (auto& flowInstance : examples[sortedDays[i].second])
-						predictionActions.push_back(Model::Data::FlowAction(flowInstance, 1. / bestPredictionExamplesNumber));
-				}
+				for (size_t i = 0; i < selectedInstances; i++)
+					for (const Data::Flow::FlowInstance& instance : otherExamples[sortedDays[i].first])
+						selectedDaysActions.push_back(Data::Flow::FlowAction(instance, 1. / selectedInstances));
 			}
 
-			std::vector<Model::Data::FlowAction> flowActions;
 			{
-				for (auto& flowInstance : example.second)
-					flowActions.push_back(Model::Data::FlowAction(flowInstance, 1.));
+				for (const Data::Flow::FlowInstance& instance : example.second)
+					sameDayActions.push_back(Data::Flow::FlowAction(instance, 1.));
 			}
 
-			std::vector<Model::Data::FlowAction> noActions;
-			{
-			}
+			Data::Demand::DemandPrediction<Nodes> noActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(noActions, timeFrames);
+			Data::Demand::DemandPrediction<Nodes> randomDayActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(randomDayActions, timeFrames);
+			//Data::Demand::DemandPrediction<Nodes> otherDaysActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(otherDaysActions, timeFrames);
+			Data::Demand::DemandPrediction<Nodes> selectedDaysActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(selectedDaysActions, timeFrames);
+			Data::Demand::DemandPrediction<Nodes> sameDayActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(sameDayActions, timeFrames);
 
-			Model::Structure::NetworkState<Nodes> initialState;
-			for (auto& station : initialState.nodes)
-				station.value = 8;
+			Data::Supply::SupplyPrediction<Nodes> noActionsAvgSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeAvgSupply(noActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> randomDayActionsAvgSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeAvgSupply(randomDayActions, timeFrames);
+			//Data::Supply::SupplyPrediction<Nodes> otherDaysActionsAvgSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeAvgSupply(otherDaysActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> selectedDaysActionsAvgSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeAvgSupply(selectedDaysActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> sameDayActionsAvgSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeAvgSupply(sameDayActions, timeFrames);
 
-			Flow::FlowRelocationModel initialModelNo(0, 0, 10, 10);
-			Flow::FlowRelocationModel initialModelTwo(2, 0, 10, 10);
+			Data::Supply::SupplyPrediction<Nodes> noActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(noActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> randomDayActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(randomDayActions, timeFrames);
+			//Data::Supply::SupplyPrediction<Nodes> otherDaysActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(otherDaysActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> selectedDaysActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(selectedDaysActions, timeFrames);
+			Data::Supply::SupplyPrediction<Nodes> sameDayActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(sameDayActions, timeFrames);
 
-			Flow::Configuration::SimulationConfiguration simulationConfigurationPrediction(
-				Flow::Configuration::RelocationSchedulingConfiguration(30),
-				Flow::Configuration::SchedulingConfiguration(
-					Flow::Configuration::ThresholdConfiguration(2, 10),
-					Flow::Configuration::OperationTimeConfiguration(5, 0.5),
-					Flow::Configuration::SchedulingSpaceConfiguration(20, 25)
-				),
-				Model::Configuration::FlowDistributionModelSimulationConfiguration(flowActions),
-				Model::Configuration::FlowDistributionModelSimulationConfiguration(predictionActions)
+			Redistribution::FlowRelocationSimulation<Nodes> florRelocationSimulation(
+				6,
+				0.1, 0.01,
+				2, 8,
+				20, 200
 			);
 
-			Flow::Configuration::SimulationConfiguration simulationConfigurationBestPrediction(
-				Flow::Configuration::RelocationSchedulingConfiguration(30),
-				Flow::Configuration::SchedulingConfiguration(
-					Flow::Configuration::ThresholdConfiguration(2, 10),
-					Flow::Configuration::OperationTimeConfiguration(5, 0.5),
-					Flow::Configuration::SchedulingSpaceConfiguration(20, 25)
-				),
-				Model::Configuration::FlowDistributionModelSimulationConfiguration(flowActions),
-				Model::Configuration::FlowDistributionModelSimulationConfiguration(bestPredictionActions)
-			);
+			Data::FillLevel::FillLevelPrediction<Nodes> noActionsWithoutRelocationPrediction = florRelocationSimulation.simulate(
+				distributionSimulation,
+				noActionsFullSupply,
+				noActionsDemand,
+				noActionsFullSupply,
+				relocationTeamWith0,
+				flowTimePrediction,
+				timeFrames);
 
-			Flow::Configuration::SimulationConfiguration simulationConfigurationFlow(
-				Flow::Configuration::RelocationSchedulingConfiguration(30),
-				Flow::Configuration::SchedulingConfiguration(
-					Flow::Configuration::ThresholdConfiguration(2, 10),
-					Flow::Configuration::OperationTimeConfiguration(5, 0.5),
-					Flow::Configuration::SchedulingSpaceConfiguration(20, 25)
-				),
-				Model::Configuration::FlowDistributionModelSimulationConfiguration(flowActions),
-				Model::Configuration::FlowDistributionModelSimulationConfiguration(flowActions)
-			);
+			Data::FillLevel::FillLevelPrediction<Nodes> noActionsWithRelocationPrediction = florRelocationSimulation.simulate(
+				distributionSimulation,
+				noActionsFullSupply,
+				noActionsDemand,
+				noActionsFullSupply,
+				relocationTeamWith2,
+				flowTimePrediction,
+				timeFrames);
 
-			Flow::Configuration::SimulationConfiguration simulationConfigurationNo(
-				Flow::Configuration::RelocationSchedulingConfiguration(30),
-				Flow::Configuration::SchedulingConfiguration(
-					Flow::Configuration::ThresholdConfiguration(2, 10),
-					Flow::Configuration::OperationTimeConfiguration(8, 0.5),
-					Flow::Configuration::SchedulingSpaceConfiguration(20, 25)
-				),
-				Model::Configuration::FlowDistributionModelSimulationConfiguration(flowActions),
-				Model::Configuration::FlowDistributionModelSimulationConfiguration(noActions)
-			);
+			Data::FillLevel::FillLevelPrediction<Nodes> selectedDaysActionsWithRelocationPrediction = florRelocationSimulation.simulate(
+				distributionSimulation,
+				selectedDaysActionsAvgSupply,
+				selectedDaysActionsDemand,
+				selectedDaysActionsFullSupply,
+				relocationTeamWith2,
+				flowTimePrediction,
+				timeFrames);
 
-			auto modelTwoFlow = testRedistributionForConfiguration(timeFrames, initialState, initialModelTwo, simulationConfigurationFlow, flowMatrices.begin()->second);
-			auto modelNo = testRedistributionForConfiguration(timeFrames, initialState, initialModelNo, simulationConfigurationPrediction, flowMatrices.begin()->second);
-			auto modelTwoPrediction = testRedistributionForConfiguration(timeFrames, initialState, initialModelTwo, simulationConfigurationPrediction, flowMatrices.begin()->second);
-			auto modelTwoBestPrediction = testRedistributionForConfiguration(timeFrames, initialState, initialModelTwo, simulationConfigurationBestPrediction, flowMatrices.begin()->second);
-			auto modelTwoNo = testRedistributionForConfiguration(timeFrames, initialState, initialModelTwo, simulationConfigurationNo, flowMatrices.begin()->second);
+			Data::FillLevel::FillLevelPrediction<Nodes> sameDayActionsWithRelocationPrediction = florRelocationSimulation.simulate(
+				distributionSimulation,
+				sameDayActionsFullSupply,
+				sameDayActionsDemand,
+				sameDayActionsFullSupply,
+				relocationTeamWith2,
+				flowTimePrediction,
+				timeFrames);
 
-			std::cout
-				<< std::round(100 * DataProcessing::Validation::AvailabilityValidation::getTimeOfUnavailability(modelNo)) / 100 << "\t"
-				<< std::round(100 * DataProcessing::Validation::AvailabilityValidation::getTimeOfUnavailability(modelTwoNo)) / 100 << "\t"
-				<< std::round(100 * DataProcessing::Validation::AvailabilityValidation::getTimeOfUnavailability(modelTwoPrediction)) / 100 << "\t"
-				<< std::round(100 * DataProcessing::Validation::AvailabilityValidation::getTimeOfUnavailability(modelTwoBestPrediction)) / 100 << "\t"
-				<< std::round(100 * DataProcessing::Validation::AvailabilityValidation::getTimeOfUnavailability(modelTwoFlow)) / 100 << std::endl;
+			Data::FillLevel::FillLevelPrediction<Nodes> realPrediction = distributionSimulation.run(timeFrames);
+
+			std::cout <<
+				DataProcessing::Validation::AvailabilityValidation<Nodes>::getTimeOfUnavailability(realPrediction) << "\t" <<
+				DataProcessing::Validation::AvailabilityValidation<Nodes>::getTimeOfUnavailability(noActionsWithoutRelocationPrediction) << "\t" <<
+				DataProcessing::Validation::AvailabilityValidation<Nodes>::getTimeOfUnavailability(noActionsWithRelocationPrediction) << "\t" <<
+				DataProcessing::Validation::AvailabilityValidation<Nodes>::getTimeOfUnavailability(selectedDaysActionsWithRelocationPrediction) << "\t" <<
+				DataProcessing::Validation::AvailabilityValidation<Nodes>::getTimeOfUnavailability(sameDayActionsWithRelocationPrediction) << std::endl;
 		}
 
 		std::getchar();

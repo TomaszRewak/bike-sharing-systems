@@ -8,6 +8,8 @@
     <ClInclude Include="fill-level\error.hpp" />
     <ClInclude Include="time\time-processing.hpp" />
     <ClInclude Include="time\time-series-processing.hpp" />
+    <ClInclude Include="flow\casting.hpp" />
+    <ClInclude Include="flow\filtering.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\_.cpp" />

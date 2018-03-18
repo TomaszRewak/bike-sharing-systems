@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="decision-making\fill-greedy-algorithm.hpp" />
+    <ClInclude Include="decision-making\path-greedy-algorithm.hpp" />
+    <ClInclude Include="flow-relocation-scheduler.hpp" />
+    <ClInclude Include="decisions\decision-applier.hpp" />
+    <ClInclude Include="decisions\fill-decision-applier.hpp" />
+    <ClInclude Include="decisions\path-decision-applier.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="test\_.cpp" />
+  </ItemGroup>
+</Project>
