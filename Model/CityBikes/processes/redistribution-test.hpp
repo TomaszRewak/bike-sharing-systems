@@ -45,7 +45,9 @@ namespace CityBikes::Processes
 			
 			{
 				relocationTeamWith2.push_back(Data::Relocation::RelocationUnit(0, 8, 10));
-				relocationTeamWith2.push_back(Data::Relocation::RelocationUnit(0, 8, 10));
+				relocationTeamWith2.push_back(Data::Relocation::RelocationUnit(20, 8, 10));
+				relocationTeamWith2.push_back(Data::Relocation::RelocationUnit(40, 8, 10));
+				relocationTeamWith2.push_back(Data::Relocation::RelocationUnit(60, 8, 10));
 			}
 
 

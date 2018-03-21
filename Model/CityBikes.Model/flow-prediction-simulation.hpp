@@ -25,10 +25,19 @@ namespace CityBikes::Model
 			std::vector<std::array<double, Nodes>> memory(endTimeFrame - startTimeFrame);
 
 			for (const Data::Flow::FlowTarget& flow : ongoingFlow)
+			{
+				double usedProbability = 0;
+
 				for (size_t target = 0; target < Nodes; target++)
 					for (const auto& supply : ongoingSupplyPrediction[flow.timeFrame][flow.node][target])
 						if (flow.timeFrame + supply.first >= startTimeFrame && flow.timeFrame + supply.first < endTimeFrame)
-							memory[flow.timeFrame + supply.first - startTimeFrame][target] += supply.second;
+							usedProbability += supply.second;
+
+				for (size_t target = 0; target < Nodes; target++)
+					for (const auto& supply : ongoingSupplyPrediction[flow.timeFrame][flow.node][target])
+						if (flow.timeFrame + supply.first >= startTimeFrame && flow.timeFrame + supply.first < endTimeFrame)
+							memory[flow.timeFrame + supply.first - startTimeFrame][target] += supply.second / usedProbability;
+			}
 
 			for (size_t timeFrame = startTimeFrame; timeFrame < endTimeFrame; timeFrame++)
 				for (size_t source = 0; source < Nodes; source++)

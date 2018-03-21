@@ -14,13 +14,13 @@ int main()
 {
 	std::srand(time(NULL));
 
-	const size_t timeFrames = 288;
+	const size_t timeFrames = 144;
 	const size_t initialStationSize = 5;
 	const size_t examplesNumber = 100;
 
 	//CityBikes::Processes::testModel<Nodes>(timeFrames, initialStationSize, examplesNumber);
-	//CityBikes::Processes::testPrediction<Nodes>(timeFrames);
-	CityBikes::Processes::testRedistribution<Nodes>(timeFrames);
+	CityBikes::Processes::testPrediction<Nodes>(timeFrames);
+	//CityBikes::Processes::testRedistribution<Nodes>(timeFrames);
 
 	//CityBikes::Processes::testFlow<Nodes>(timeFrames, initialStationSize, examplesNumber);
 
