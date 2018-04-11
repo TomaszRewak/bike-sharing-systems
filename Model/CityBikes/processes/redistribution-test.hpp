@@ -118,7 +118,7 @@ namespace CityBikes::Processes
 			Data::Supply::SupplyPrediction<Nodes> sameDayActionsFullSupply = Model::Prediction::SupplyAnalysis<Nodes>::computeFullSupply(sameDayActions, timeFrames);
 
 			Redistribution::FlowRelocationSimulation<Nodes> florRelocationSimulation(
-				6,
+				4,
 				0.1, 0.01,
 				2, 8,
 				20, 200

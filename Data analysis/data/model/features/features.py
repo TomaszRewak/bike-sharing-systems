@@ -1,13 +1,25 @@
-from data.model.features.offline_features import OfflineFeatures
-from data.model.features.online_features import OnlineFeatures
+from data.model.day.day import Day
+from data.model.weather.weather import Weather
 
 
 class Features:
     def __init__(self,
-                 offline_features: OfflineFeatures,
-                 online_features: OnlineFeatures):
-        self.offline_features = offline_features
-        self.online_features = online_features
+                 weather: Weather,
+                 day: Day
+                 ):
+        self.weather = weather
+        self.day = day
 
     def vector(self):
-        return self.offline_features.vector() + self.online_features.vector()
+        return [
+            # self.day.day,
+            (self.day.month - 1.) / 11.,
+            # self.day.year,
+            (self.day.day_of_the_week - 0.) / 6.,
+            (self.weather.avg_cloud - 0.) / 8.,
+            (self.weather.avg_wind - 1.) / 8.,
+            (self.weather.avg_temp + 3.1) / 32.5,
+            (self.weather.avg_fall - 0.) / 31.7
+        ]
+
+

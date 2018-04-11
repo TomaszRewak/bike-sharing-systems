@@ -1,14 +1,7 @@
 from typing import List, Dict
 
 from data.model.learning_examples.learning_example import LearningExample
-
-
-class LearningExampleGroup:
-    def __init__(self,
-                 train_examples: List[LearningExample],
-                 test_examples: List[LearningExample]):
-        self.train_examples = train_examples
-        self.test_examples = test_examples
+from data.model.learning_examples.learning_example_group import LearningExampleGroup
 
 
 def group_learning_examples(learning_examples: List[LearningExample]) -> Dict[str, LearningExampleGroup]:

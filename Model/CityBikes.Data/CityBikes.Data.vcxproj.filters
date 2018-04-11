@@ -7,7 +7,6 @@
     <ClInclude Include="rides\utils\ride-reader.hpp" />
     <ClInclude Include="flow-time\utils\flow-time-matrices-reader.hpp" />
     <ClInclude Include="demand\demand-prediction.hpp" />
-    <ClInclude Include="demand\utils\demand-prediction-reader.hpp" />
     <ClInclude Include="supply\supply-prediction.hpp" />
     <ClInclude Include="supply\supply-prediction-distribution.hpp" />
     <ClInclude Include="flow-time\flow-time-prediction.hpp" />
@@ -31,6 +30,9 @@
     <ClInclude Include="fill-level-distribution\fill-level-distribution-prediction-alteration.hpp" />
     <ClInclude Include="relocation\relocation-operation.hpp" />
     <ClInclude Include="relocation\relocation-schedule.hpp" />
+    <ClInclude Include="demand\utils\cumulative-demand-prediction-reader.hpp" />
+    <ClInclude Include="demand\cumulative-demand-prediction-frame.hpp" />
+    <ClInclude Include="demand\cumulative-demand-prediction.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\_.cpp" />

@@ -6,6 +6,6 @@
 
 namespace CityBikes::Data::DayDistance
 {
-	struct DayDistanceFunction : public std::map<Time::Day, std::map<Time::Day, float>>
+	struct DayDistanceFunction : public std::map<Time::Day, std::map<Time::Day, double>>
 	{ };
 }

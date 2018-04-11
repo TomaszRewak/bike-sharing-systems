@@ -6,9 +6,8 @@ from os import path
 
 from data.model.city_network.utils.downloader import download_city_network
 from data.model.city_network.utils.loader import save_city_network, load_city_network
-from data.model.distance_functions.utils.loader import save_distance_functions
-from data.model.features.utils.pickler import pickle_offline_features, unpickle_offline_features
-from data.model.features.utils.loader import save_offline_features
+from data.model.distance_functions.utils.loader import save_distance_functions, load_distance_functions
+from data.model.features.utils.pickler import pickle_features, unpickle_features
 from data.model.learning_examples.utils.pickler import pickle_learning_examples, unpickle_learning_examples
 from data.model.predictions.utils.loader import load_predictions
 from data.model.raw_rides.utils.loader import load_raw_rides
@@ -22,10 +21,11 @@ from data.model.time_predictions.utils.pickler import pickle_time_predictions, u
 from data.model.weather.utils.loader import load_weather
 from data.processing.city_network.city_network_simplifying import simplify_city_network
 from data.processing.distance_functions.distance_functions_processing import process_distance_functions
+from data.processing.features.features_analysis import analyse_features
 from data.processing.flow_matrix.flow_matrix_processing import process_flow_matrices
 from data.processing.learning_examples.learning_examples_grouping import group_learning_examples
 from data.processing.learning_examples.learning_examples_processing import process_learning_examples
-from data.processing.features.offline_features_processing import process_offline_features
+from data.processing.features.offline_features_processing import process_features
 from data.processing.rides.rides_processing import process_rides_data
 from data.processing.time_matrix.time_matrix_processing import process_time_matrices
 from data.processing.time_predictions.time_prediction_grouping import group_time_predictions
@@ -48,6 +48,9 @@ parser.add_argument('--prepare_rides_data',
                     action='store_true')
 parser.add_argument('--prepare_features',
                     help='Prepare feature values for each day',
+                    action='store_true')
+parser.add_argument('--analyse_feature_set',
+                    help='Analyse feature values',
                     action='store_true')
 parser.add_argument('--prepare_learning_set',
                     help='Prepare learning set',
@@ -100,27 +103,32 @@ def prepare_rides_data():
 def prepare_features():
     weather = load_weather('../resources/raw/weather/s_d_t_424_2015.csv')
 
-    features = process_offline_features(weather)
+    features = process_features(weather)
 
-    pickle_offline_features('./resources/pickled/features.pickle', features)
-    save_offline_features('../resources/processed/features.features', features)
+    pickle_features('./resources/pickled/features.pickle', features)
+
+
+def analyse_feature_set():
+    features = unpickle_features('./resources/pickled/features.pickle')
+
+    analyse_features(features)
 
 
 def prepare_learning_set():
-    predictions = load_predictions('../resources/processed/base_predictions/')
-    offline_features = unpickle_offline_features('./resources/pickled/features.pickle')
+    distance_functions = load_distance_functions('../resources/processed/demand_distance.distance')
+    features = unpickle_features('./resources/pickled/features.pickle')
 
-    learning_examples = process_learning_examples(predictions, offline_features)
+    learning_examples = process_learning_examples(distance_functions, features)
+    grouped_learning_examples = group_learning_examples(learning_examples)
 
-    pickle_learning_examples('./resources/pickled/learning_examples.pickle', learning_examples)
+    pickle_learning_examples('./resources/pickled/learning_examples.pickle', grouped_learning_examples)
 
 
 def learn_nn_distance_function():
     learning_examples = unpickle_learning_examples('./resources/pickled/learning_examples.pickle')
-    grouped_learning_examples = group_learning_examples(learning_examples)
 
     distance_functions = process_distance_functions(
-        grouped_learning_examples,
+        learning_examples,
         learn_distance_nn_function,
         apply_distance_nn_function
     )
@@ -204,6 +212,8 @@ def main():
         prepare_rides_data()
     elif args.prepare_features:
         prepare_features()
+    elif args.analyse_feature_set:
+        analyse_feature_set()
     elif args.prepare_learning_set:
         prepare_learning_set()
     elif args.learn_nn_distance_function:

@@ -5,19 +5,19 @@
 #include <iomanip>
 #include <map>
 
-#include "../demand-prediction.hpp"
+#include "../cumulative-demand-prediction.hpp"
 #include "../../../CityBikes.DataProcessing/time/time-series-processing.hpp"
-#include "../../common/day.hpp"
+#include "../../time/day.hpp"
 
 namespace CityBikes::Data::Demand::Utils
 {
 	template<size_t Nodes>
-	class FlowTimeMatricesReader
+	class CumulativeDemandPredictionReader
 	{
 	public:
-		static std::map<Common::Day, DemandPrediction<Nodes>> readData(std::experimental::filesystem::path path, size_t timeFrames)
+		static std::map<Time::Day, CumulativeDemandPrediction<Nodes>> readData(std::experimental::filesystem::path path, size_t timeFrames)
 		{
-			std::map<Common::Day, DemandPrediction<Nodes>> result;
+			std::map<Time::Day, CumulativeDemandPrediction<Nodes>> result;
 
 			DataProcessing::Time::TimeSeriesQuantizer timeSeriesQuantizer(timeFrames);
 
@@ -30,7 +30,7 @@ namespace CityBikes::Data::Demand::Utils
 
 			for (size_t example = 0; example < examples; example++)
 			{
-				DemandPrediction<Nodes> demand(timeFrames);
+				CumulativeDemandPrediction<Nodes> demand(timeFrames);
 
 				std::tm day;
 				size_t timeStamps;
@@ -71,7 +71,7 @@ namespace CityBikes::Data::Demand::Utils
 
 		static void writeData(
 			std::experimental::filesystem::path path,
-			const std::map<Common::Day, DemandPrediction<Nodes>>& examples,
+			const std::map<Time::Day, CumulativeDemandPrediction<Nodes>>& examples,
 			size_t timeStamps
 		)
 		{
@@ -85,7 +85,7 @@ namespace CityBikes::Data::Demand::Utils
 
 				DataProcessing::Time::TimeQuantizer timeQuantizer(timeFrames);
 
-				file << Common::Day::to_string(example.first) << " " << timeStamps << std::endl;
+				file << Time::Day::to_string(example.first) << " " << timeStamps << std::endl;
 
 				for (size_t timeStamp = 0; timeStamp < timeStamps; timeStamp++)
 				{

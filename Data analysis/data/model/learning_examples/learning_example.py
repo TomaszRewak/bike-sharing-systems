@@ -10,6 +10,5 @@ class LearningExample:
                  features_b: Features,
                  used_examples: List[str]):
         self.diff_value = diff_value
-        self.features_a = features_a
-        self.features_b = features_b
+        self.features = features_a.vector() + features_b.vector()
         self.used_examples = used_examples

@@ -129,6 +129,8 @@
     <None Include="rides\ride.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="demand\cumulative-demand-prediction.hpp" />
+    <ClInclude Include="demand\cumulative-demand-prediction-frame.hpp" />
     <ClInclude Include="fill-level-distribution\fill-level-distribution-prediction-alteration.hpp" />
     <ClInclude Include="fill-level-distribution\fill-level-distribution-prediction-node.hpp" />
     <ClInclude Include="fill-level-distribution\fill-level-distribution-prediction.hpp" />
@@ -145,7 +147,7 @@
     <ClInclude Include="flow\flow-target.hpp" />
     <ClInclude Include="demand\demand-prediction-frame.hpp" />
     <ClInclude Include="demand\demand-prediction.hpp" />
-    <ClInclude Include="demand\utils\demand-prediction-reader.hpp" />
+    <ClInclude Include="demand\utils\cumulative-demand-prediction-reader.hpp" />
     <ClInclude Include="day-distance\utils\day-distance-functions-reader.hpp" />
     <ClInclude Include="flow-time\flow-time-prediction-matrix.hpp" />
     <ClInclude Include="flow-time\flow-time-prediction.hpp" />
