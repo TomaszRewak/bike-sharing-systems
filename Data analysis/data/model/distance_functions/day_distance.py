@@ -1,6 +1,9 @@
+from typing import List
+
+
 class DayDistance:
     def __init__(self,
                  day: str,
-                 distance: float):
+                 distances: List[float]):
         self.day = day
-        self.distance = distance
+        self.distances = distances

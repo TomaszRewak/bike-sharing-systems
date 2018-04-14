@@ -13,13 +13,13 @@ namespace CityBikes::Processes
 	template<size_t Nodes>
 	void computeDistanceExamples()
 	{
-		size_t timeFrames = 1440;
-		size_t window = timeFrames / 12;
+		size_t timeFrames = 288;
+		size_t window = timeFrames / 6;
 
 		auto rides = Data::Rides::Utils::RideReader::readData("../../Resources/processed/rides.rides");
 		auto examples = DataProcessing::Rides::RidesMapper::map(rides, timeFrames);
 
-		Data::DayDistance::DayDistanceFunction distanceFunction;
+		Data::DayDistance::DayDistanceFunction<Nodes> distanceFunction;
 
 		for (auto &dayA : examples)
 		{
@@ -30,14 +30,16 @@ namespace CityBikes::Processes
 			{
 				Data::Demand::CumulativeDemandPrediction<Nodes> demandB = Model::Prediction::DemandAnalysis<Nodes>::computeCumulativeDemand(dayB.second, timeFrames);
 
-				double distance = Model::Prediction::DemandAnalysis<Nodes>::computeDistance(demandA, demandB, window);
+				//std::array<double, Nodes> distances = Model::Prediction::DemandAnalysis<Nodes>::computeDistance(demandA, demandB, window);
+				std::array<double, Nodes> distances = Model::Prediction::DemandAnalysis<Nodes>::computeSimpleDistance(demandA, demandB);
 
-				distanceFunction[dayA.first][dayB.first] = distance;
+				for (size_t node = 0; node < Nodes; node++)
+					distanceFunction[dayA.first][dayB.first][node] = distances[node];
 			}
 		}
 
-		Data::DayDistance::Utils::DayDistanceFunctionReader::writeData(
-			"../../Resources/processed/demand_distance.distance",
+		Data::DayDistance::Utils::DayDistanceFunctionReader<Nodes>::writeData(
+			"../../Resources/processed/simple_demand_distance.distance",
 			distanceFunction);
 	}
 }

@@ -9,12 +9,13 @@
 
 namespace CityBikes::Data::DayDistance::Utils
 {
+	template<size_t Nodes>
 	class DayDistanceFunctionReader
 	{
 	public:
-		static DayDistanceFunction readData(std::experimental::filesystem::path path)
+		static DayDistanceFunction<Nodes> readData(std::experimental::filesystem::path path)
 		{
-			DayDistanceFunction distanceFunction;
+			DayDistanceFunction<Nodes> distanceFunction;
 
 			std::ifstream file(path);
 
@@ -34,10 +35,16 @@ namespace CityBikes::Data::DayDistance::Utils
 					std::tm distanceDay;
 					file >> std::get_time(&distanceDay, "%d.%m.%Y");
 
-					float distance;
-					file >> distance;
+					size_t nodes;
+					file >> nodes;
 
-					distanceFunction[functionDay][distanceDay] = distance;
+					for (size_t node = 0; node < Nodes; node++)
+					{
+						double distance;
+						file >> distance;
+
+						distanceFunction[functionDay][distanceDay][node] = distance;
+					}
 				}
 			}
 
@@ -46,12 +53,12 @@ namespace CityBikes::Data::DayDistance::Utils
 			return distanceFunction;
 		}		
 		
-		static void writeData(std::experimental::filesystem::path path, const DayDistanceFunction& distanceFunction)
+		static void writeData(std::experimental::filesystem::path path, DayDistanceFunction<Nodes>& distanceFunction)
 		{
 			std::ofstream file(path);
 
 			file << distanceFunction.size() << std::endl;
-
+			
 			for (const auto& source : distanceFunction)
 			{
 				file << Time::Day::to_string(source.first) << " ";
@@ -59,8 +66,12 @@ namespace CityBikes::Data::DayDistance::Utils
 
 				for (const auto& destination : source.second)
 				{
-					file << Time::Day::to_string(destination.first) << " ";
-					file << destination.second << std::endl;
+					file << Time::Day::to_string(destination.first) << " " << Nodes << std::endl;
+
+					for (size_t node = 0; node < Nodes; node++)
+						file << destination.second[node] << " ";
+
+					file << std::endl;
 				}
 			}
 

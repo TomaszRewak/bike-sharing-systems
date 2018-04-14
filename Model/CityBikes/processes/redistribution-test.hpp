@@ -101,7 +101,7 @@ namespace CityBikes::Processes
 
 			Data::Demand::DemandPrediction<Nodes> noActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(noActions, timeFrames);
 			Data::Demand::DemandPrediction<Nodes> randomDayActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(randomDayActions, timeFrames);
-			//Data::Demand::DemandPrediction<Nodes> otherDaysActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(otherDaysActions, timeFrames);
+			Data::Demand::DemandPrediction<Nodes> otherDaysActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(otherDaysActions, timeFrames);
 			Data::Demand::DemandPrediction<Nodes> selectedDaysActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(selectedDaysActions, timeFrames);
 			Data::Demand::DemandPrediction<Nodes> sameDayActionsDemand = Model::Prediction::DemandAnalysis<Nodes>::computeDemand(sameDayActions, timeFrames);
 
@@ -144,7 +144,7 @@ namespace CityBikes::Processes
 
 			Data::FillLevel::FillLevelPrediction<Nodes> selectedDaysActionsWithRelocationPrediction = florRelocationSimulation.simulate(
 				distributionSimulation,
-				selectedDaysActionsAvgSupply,
+				selectedDaysActionsFullSupply,
 				selectedDaysActionsDemand,
 				selectedDaysActionsFullSupply,
 				relocationTeamWith2,

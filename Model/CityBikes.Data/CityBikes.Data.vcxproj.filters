@@ -33,6 +33,8 @@
     <ClInclude Include="demand\utils\cumulative-demand-prediction-reader.hpp" />
     <ClInclude Include="demand\cumulative-demand-prediction-frame.hpp" />
     <ClInclude Include="demand\cumulative-demand-prediction.hpp" />
+    <ClInclude Include="day-distance\day-distance-value.hpp" />
+    <ClInclude Include="time\utils\days_reader.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test\_.cpp" />

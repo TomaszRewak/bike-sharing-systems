@@ -25,8 +25,8 @@ int main()
 	//CityBikes::Processes::computeDistanceExamples<Nodes>();
 
 	//CityBikes::Processes::testModel<Nodes>(timeFrames, initialStationSize, examplesNumber);
-	//CityBikes::Processes::testPrediction<Nodes>(timeFrames);
-	CityBikes::Processes::testRedistribution<Nodes>(timeFrames);
+	CityBikes::Processes::testPrediction<Nodes>(timeFrames);
+	//CityBikes::Processes::testRedistribution<Nodes>(timeFrames);
 
 	//CityBikes::Processes::testFlow<Nodes>(timeFrames, initialStationSize, examplesNumber);
 

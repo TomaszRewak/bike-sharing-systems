@@ -48,7 +48,16 @@ namespace CityBikes::Scheduling::Decisions
 			Data::Relocation::RelocationOperation relocationOperation
 		) const
 		{
-			fillDecisionApplier.check(relocationUnit, networkState, relocationOperation.nodeFillChange);
+			return fillDecisionApplier.check(relocationUnit, networkState, relocationOperation.nodeFillChange);
+		}
+
+		void fix(
+			Data::Relocation::RelocationUnit& relocationUnit,
+			Data::FillLevel::FillLevelPredictionFrame<Nodes>& networkState,
+			Data::Relocation::RelocationOperation& relocationOperation
+		) const
+		{
+			return fillDecisionApplier.fix(relocationUnit, networkState, relocationOperation.nodeFillChange);
 		}
 	};
 }

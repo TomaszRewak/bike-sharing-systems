@@ -6,6 +6,7 @@ from os import path
 
 from data.model.city_network.utils.downloader import download_city_network
 from data.model.city_network.utils.loader import save_city_network, load_city_network
+from data.model.day.utils.loader import load_days
 from data.model.distance_functions.utils.loader import save_distance_functions, load_distance_functions
 from data.model.features.utils.pickler import pickle_features, unpickle_features
 from data.model.learning_examples.utils.pickler import pickle_learning_examples, unpickle_learning_examples
@@ -23,9 +24,10 @@ from data.processing.city_network.city_network_simplifying import simplify_city_
 from data.processing.distance_functions.distance_functions_processing import process_distance_functions
 from data.processing.features.features_analysis import analyse_features
 from data.processing.flow_matrix.flow_matrix_processing import process_flow_matrices
-from data.processing.learning_examples.learning_examples_grouping import group_learning_examples
 from data.processing.learning_examples.learning_examples_processing import process_learning_examples
 from data.processing.features.offline_features_processing import process_features
+from data.processing.learning_examples.learning_examples_joining import concat_feature_vectors, \
+    subtract_feature_vectors, mix_feature_vectors
 from data.processing.rides.rides_processing import process_rides_data
 from data.processing.time_matrix.time_matrix_processing import process_time_matrices
 from data.processing.time_predictions.time_prediction_grouping import group_time_predictions
@@ -52,8 +54,8 @@ parser.add_argument('--prepare_features',
 parser.add_argument('--analyse_feature_set',
                     help='Analyse feature values',
                     action='store_true')
-parser.add_argument('--prepare_learning_set',
-                    help='Prepare learning set',
+parser.add_argument('--prepare_learning_examples',
+                    help='Prepare learning examples',
                     action='store_true')
 parser.add_argument('--learn_nn_distance_function',
                     help='Learn distance function based on NN',
@@ -114,21 +116,23 @@ def analyse_feature_set():
     analyse_features(features)
 
 
-def prepare_learning_set():
-    distance_functions = load_distance_functions('../resources/processed/demand_distance.distance')
+def prepare_learning_examples():
+    distance_functions = load_distance_functions('../resources/processed/simple_demand_distance.distance')
     features = unpickle_features('./resources/pickled/features.pickle')
 
-    learning_examples = process_learning_examples(distance_functions, features)
-    grouped_learning_examples = group_learning_examples(learning_examples)
+    learning_examples = process_learning_examples(distance_functions, features, subtract_feature_vectors)
 
-    pickle_learning_examples('./resources/pickled/learning_examples.pickle', grouped_learning_examples)
+    pickle_learning_examples('./resources/pickled/learning_examples.pickle', learning_examples)
 
 
 def learn_nn_distance_function():
     learning_examples = unpickle_learning_examples('./resources/pickled/learning_examples.pickle')
+    test_days = load_days('../resources/configuration/test_examples.days')
+    all_days = load_days('../resources/configuration/all_examples.days')
 
     distance_functions = process_distance_functions(
         learning_examples,
+        all_days, test_days,
         learn_distance_nn_function,
         apply_distance_nn_function
     )
@@ -214,8 +218,8 @@ def main():
         prepare_features()
     elif args.analyse_feature_set:
         analyse_feature_set()
-    elif args.prepare_learning_set:
-        prepare_learning_set()
+    elif args.prepare_learning_examples:
+        prepare_learning_examples()
     elif args.learn_nn_distance_function:
         learn_nn_distance_function()
     elif args.get_time_predictions:

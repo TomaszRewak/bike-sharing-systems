@@ -87,5 +87,16 @@ namespace CityBikes::Scheduling::Decisions
 			if (networkState[relocationUnit.destination] + decision < 0)
 				throw "Invalid network state";
 		}
+
+		void fix(
+			Data::Relocation::RelocationUnit& relocationUnit,
+			Data::FillLevel::FillLevelPredictionFrame<Nodes>& networkState,
+			int& decision
+		) const
+		{
+			decision = std::max(decision, -(int)networkState[relocationUnit.destination]);
+			decision = std::min(decision, (int)relocationUnit.currentLoad);
+			decision = std::max(decision, (int)relocationUnit.currentLoad - (int)relocationUnit.maxLoad);
+		}
 	};
 }

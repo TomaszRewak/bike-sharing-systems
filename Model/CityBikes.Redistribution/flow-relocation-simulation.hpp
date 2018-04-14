@@ -67,7 +67,6 @@ namespace CityBikes::Redistribution
 					upcomingSupplyPrediction,
 					startTimeFrame, endTimeFrame
 				);
-				prediction.insert(prediction.begin(), currentState);
 
 				Scheduling::Decisions::DecisionApplier<Nodes> decisionApplier(
 					baseOperationTime, singleOperationTime,
@@ -85,6 +84,8 @@ namespace CityBikes::Redistribution
 					prediction
 				);
 
+				flowDistributionSimulation.step();
+
 				for (size_t unit = 0; unit < relocationTeam.size(); unit++)
 				{
 					auto& relocationUnit = relocationTeam[unit];
@@ -94,7 +95,8 @@ namespace CityBikes::Redistribution
 					{
 						if (relocationUnit.timeUntilDestination >= 1)
 							break;
-
+						
+						decisionApplier.fix(relocationUnit, currentState, operation);
 						decisionApplier.check(relocationUnit, currentState, operation);
 						decisionApplier.apply(relocationUnit, currentState, operation);
 					}
@@ -103,8 +105,6 @@ namespace CityBikes::Redistribution
 				}
 
 				result.push_back(flowDistributionSimulation.getCurrentState());
-
-				flowDistributionSimulation.step();
 			}
 
 			return result;

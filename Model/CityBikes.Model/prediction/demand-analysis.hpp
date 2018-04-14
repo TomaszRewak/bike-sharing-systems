@@ -48,9 +48,35 @@ namespace CityBikes::Model::Prediction
 			return computeCumulativeDemand(flowActions, timeFrames);
 		}
 
-		static double computeDistance(const Data::Demand::CumulativeDemandPrediction<Nodes>& demandA, const Data::Demand::CumulativeDemandPrediction<Nodes>& demandB, size_t window)
+		static std::array<double, Nodes> computeSimpleDistance(const Data::Demand::CumulativeDemandPrediction<Nodes>& demandA, const Data::Demand::CumulativeDemandPrediction<Nodes>& demandB)
 		{
-			double distance = 0;
+			std::array<double, Nodes> distances;
+
+			size_t timeFrames = demandA.size();
+
+			for (size_t node = 0; node < Nodes; node++)
+			{
+				double nodeDistance = 0;
+
+				for (size_t timeFrame = 0; timeFrame < timeFrames; timeFrame++)
+				{
+					double windowDistance = 0;
+
+					double currentDemandA = demandA[timeFrame][node];
+					double currentDemandB = demandB[timeFrame][node];
+
+					nodeDistance += std::pow(currentDemandA - currentDemandB, 2);
+				}
+
+				distances[node] = nodeDistance / timeFrames;
+			}
+
+			return distances;
+		}
+
+		static std::array<double, Nodes> computeDistance(const Data::Demand::CumulativeDemandPrediction<Nodes>& demandA, const Data::Demand::CumulativeDemandPrediction<Nodes>& demandB, size_t window)
+		{
+			std::array<double, Nodes> distances;
 
 			size_t timeFrames = demandA.size();
 
@@ -76,10 +102,10 @@ namespace CityBikes::Model::Prediction
 					nodeDistance += windowDistance / window;
 				}
 
-				distance += nodeDistance / timeFrames;
+				distances[node] = nodeDistance / timeFrames;
 			}
 
-			return distance / Nodes;
+			return distances;
 		}
 	};
 }

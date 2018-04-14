@@ -129,6 +129,7 @@
     <None Include="rides\ride.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="day-distance\day-distance-value.hpp" />
     <ClInclude Include="demand\cumulative-demand-prediction.hpp" />
     <ClInclude Include="demand\cumulative-demand-prediction-frame.hpp" />
     <ClInclude Include="fill-level-distribution\fill-level-distribution-prediction-alteration.hpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="supply\supply-prediction-distribution.hpp" />
     <ClInclude Include="supply\supply-prediction-matrix.hpp" />
     <ClInclude Include="supply\supply-prediction.hpp" />
+    <ClInclude Include="time\utils\days_reader.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

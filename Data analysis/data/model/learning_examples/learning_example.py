@@ -6,9 +6,6 @@ from data.model.features.features import Features
 class LearningExample:
     def __init__(self,
                  diff_value: float,
-                 features_a: Features,
-                 features_b: Features,
-                 used_examples: List[str]):
+                 features: List[float]):
         self.diff_value = diff_value
-        self.features = features_a.vector() + features_b.vector()
-        self.used_examples = used_examples
+        self.features = features

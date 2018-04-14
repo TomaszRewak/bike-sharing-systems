@@ -15,7 +15,12 @@ def save_distance_functions(
             file.write(distance_function.day + ' ' + str(len(distance_function.distances)) + '\n')
 
             for distance in distance_function.distances:
-                file.write(distance.day + ' ' + str(distance.distance) + '\n')
+                file.write(distance.day + ' ' + str(len(distance.distances)) + '\n')
+
+                for distance_value in distance.distances:
+                    file.write(str(distance_value) + ' ')
+
+                file.write('\n')
 
 
 def load_distance_functions(
@@ -32,20 +37,22 @@ def load_distance_functions(
 
             [base_day, compared_days_number_str] = day_header_line.split()
 
-            distances = []
+            day_distances = []
             for _ in range(int(compared_days_number_str)):
                 day_distance_line = file.readline()
 
-                [compared_day, distance_str] = day_distance_line.split()
+                [compared_day, _] = day_distance_line.split()
 
-                distances.append(DayDistance(
+                node_distances = [float(value) for value in file.readline().split()]
+
+                day_distances.append(DayDistance(
                     compared_day,
-                    float(distance_str)
+                    node_distances
                 ))
 
             result.append(DistanceFunction(
                 base_day,
-                distances
+                day_distances
             ))
 
         return result
