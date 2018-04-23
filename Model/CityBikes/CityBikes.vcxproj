@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="processes\demand-examples.hpp" />
     <ClInclude Include="processes\distance-examples.hpp" />
+    <ClInclude Include="processes\experiment.hpp" />
     <ClInclude Include="processes\flow-examples.hpp" />
     <ClInclude Include="processes\flow-test.hpp" />
     <ClInclude Include="processes\model-test.hpp" />

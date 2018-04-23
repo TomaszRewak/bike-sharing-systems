@@ -16,7 +16,7 @@ namespace CityBikes::DataProcessing::FillLevel
 
 			for (size_t node = 0; node < Nodes; node++)
 				for (size_t timeFrame = 0; timeFrame < modelA.size(); timeFrame++)
-					diff += std::pow(modelA[timeFrame][node] - modelB[timeFrame][node], 2);
+					diff += std::abs(modelA[timeFrame][node] - modelB[timeFrame][node]);
 
 			diff /= modelA.size() * Nodes;
 

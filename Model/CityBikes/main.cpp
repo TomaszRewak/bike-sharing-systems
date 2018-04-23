@@ -5,6 +5,7 @@
 #include "processes/prediction-test.hpp"
 #include "processes/redistribution-test.hpp"
 
+#include "processes/experiment.hpp"
 #include "processes/flow-test.hpp"
 
 //#include "processes/flow-examples.hpp"
@@ -25,9 +26,10 @@ int main()
 	//CityBikes::Processes::computeDistanceExamples<Nodes>();
 
 	//CityBikes::Processes::testModel<Nodes>(timeFrames, initialStationSize, examplesNumber);
-	CityBikes::Processes::testPrediction<Nodes>(timeFrames);
+	//CityBikes::Processes::testPrediction<Nodes>(timeFrames);
 	//CityBikes::Processes::testRedistribution<Nodes>(timeFrames);
 
+	CityBikes::Processes::experiment<Nodes>(timeFrames);
 	//CityBikes::Processes::testFlow<Nodes>(timeFrames, initialStationSize, examplesNumber);
 
 	//CityBikes::Processes::computeFlowExamples<Nodes>(timeFrames);

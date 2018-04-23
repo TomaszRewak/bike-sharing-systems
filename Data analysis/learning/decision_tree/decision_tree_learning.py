@@ -1,0 +1,19 @@
+from typing import List
+
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+
+
+def learn_decision_tree_function(x: List[List[float]], y: List[float], min_samples_split: float):
+    network = DecisionTreeRegressor(min_samples_split=min_samples_split)
+    network.fit(x, y)
+
+    return network
+
+
+def learn_decision_tree_function_config(min_samples_split: float):
+    return lambda x, y: learn_decision_tree_function(x, y, min_samples_split)
+
+
+def apply_decision_tree_function(network, x: List[List[float]]) -> List[float]:
+    return network.predict(x)

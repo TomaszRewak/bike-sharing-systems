@@ -3,6 +3,7 @@
 #include "../../CityBikes.Data/demand/demand-prediction.hpp"
 #include "../../CityBikes.Data/demand/cumulative-demand-prediction.hpp"
 #include "../../CityBikes.DataProcessing/flow/sorting.hpp"
+#include "../../CityBikes.Data/time/day.hpp"
 
 #include <algorithm>
 #include <vector>
@@ -48,64 +49,30 @@ namespace CityBikes::Model::Prediction
 			return computeCumulativeDemand(flowActions, timeFrames);
 		}
 
-		static std::array<double, Nodes> computeSimpleDistance(const Data::Demand::CumulativeDemandPrediction<Nodes>& demandA, const Data::Demand::CumulativeDemandPrediction<Nodes>& demandB)
+
+		static void fixCumulativeDemandPrediction(Data::Demand::CumulativeDemandPrediction<Nodes>& cumulativeDemandPrediction)
 		{
-			std::array<double, Nodes> distances;
-
-			size_t timeFrames = demandA.size();
-
-			for (size_t node = 0; node < Nodes; node++)
-			{
-				double nodeDistance = 0;
-
-				for (size_t timeFrame = 0; timeFrame < timeFrames; timeFrame++)
-				{
-					double windowDistance = 0;
-
-					double currentDemandA = demandA[timeFrame][node];
-					double currentDemandB = demandB[timeFrame][node];
-
-					nodeDistance += std::pow(currentDemandA - currentDemandB, 2);
-				}
-
-				distances[node] = nodeDistance / timeFrames;
-			}
-
-			return distances;
+			for (size_t timeFrame = 1; timeFrame < cumulativeDemandPrediction.size(); timeFrame++)
+				for (size_t node = 0; node < Nodes; node++)
+					cumulativeDemandPrediction[timeFrame][node] = std::max(
+						cumulativeDemandPrediction[timeFrame][node], 
+						cumulativeDemandPrediction[timeFrame - 1][node]);
 		}
 
-		static std::array<double, Nodes> computeDistance(const Data::Demand::CumulativeDemandPrediction<Nodes>& demandA, const Data::Demand::CumulativeDemandPrediction<Nodes>& demandB, size_t window)
+		static Data::Demand::DemandPrediction<Nodes> decumulateDemand(Data::Demand::CumulativeDemandPrediction<Nodes> cumulativeDemandPrediction)
 		{
-			std::array<double, Nodes> distances;
+			Data::Demand::DemandPrediction<Nodes> demandPrediction(cumulativeDemandPrediction.size());
 
-			size_t timeFrames = demandA.size();
+			fixCumulativeDemandPrediction(cumulativeDemandPrediction);
 
 			for (size_t node = 0; node < Nodes; node++)
-			{
-				double nodeDistance = 0;
+				demandPrediction[0][node] = std::max(cumulativeDemandPrediction[0][node], 0.);
 
-				for (size_t timeFrame = 0; timeFrame < timeFrames; timeFrame++)
-				{
-					double windowDistance = 0;
+			for (size_t timeFrame = 1; timeFrame < demandPrediction.size(); timeFrame++)
+				for (size_t node = 0; node < Nodes; node++)
+					demandPrediction[timeFrame][node] = cumulativeDemandPrediction[timeFrame][node] - cumulativeDemandPrediction[timeFrame - 1][node];
 
-					double startDemandA = demandA[timeFrame][node];
-					double startDemandB = demandB[timeFrame][node];
-
-					for (size_t windowFrame = 0; windowFrame < window && timeFrame + windowFrame < timeFrames; windowFrame++)
-					{
-						double currentDemandA = demandA[timeFrame + windowFrame][node] - startDemandA;
-						double currentDemandB = demandB[timeFrame + windowFrame][node] - startDemandB;
-
-						windowDistance += std::pow(currentDemandA - currentDemandB, 2);
-					}
-
-					nodeDistance += windowDistance / window;
-				}
-
-				distances[node] = nodeDistance / timeFrames;
-			}
-
-			return distances;
+			return demandPrediction;
 		}
 	};
 }

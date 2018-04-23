@@ -128,6 +128,7 @@
     <ClInclude Include="flow-prediction-simulation.hpp" />
     <ClInclude Include="prediction\demand-analysis.hpp" />
     <ClInclude Include="flow-distribution-simulation.hpp" />
+    <ClInclude Include="prediction\distance-analysis.hpp" />
     <ClInclude Include="prediction\supply-analysis.hpp" />
     <ClInclude Include="validation\task-chain-validator.hpp" />
   </ItemGroup>

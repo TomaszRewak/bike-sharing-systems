@@ -13,5 +13,6 @@
     <ClInclude Include="processes\static-analysis-test.hpp" />
     <ClInclude Include="processes\demand-examples.hpp" />
     <ClInclude Include="processes\distance-examples.hpp" />
+    <ClInclude Include="processes\experiment.hpp" />
   </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@
 #include "../../CityBikes.Model/prediction/demand-analysis.hpp"
 #include "../../CityBikes.Data/day-distance/day-distance-function.hpp"
 #include "../../CityBikes.Data/day-distance/utils/day-distance-functions-reader.hpp"
+#include "../../CityBikes.Model/prediction/distance-analysis.hpp"
 
 namespace CityBikes::Processes
 {
@@ -31,7 +32,7 @@ namespace CityBikes::Processes
 				Data::Demand::CumulativeDemandPrediction<Nodes> demandB = Model::Prediction::DemandAnalysis<Nodes>::computeCumulativeDemand(dayB.second, timeFrames);
 
 				//std::array<double, Nodes> distances = Model::Prediction::DemandAnalysis<Nodes>::computeDistance(demandA, demandB, window);
-				std::array<double, Nodes> distances = Model::Prediction::DemandAnalysis<Nodes>::computeSimpleDistance(demandA, demandB);
+				std::array<double, Nodes> distances = Model::Prediction::DistanceAnalysis<Nodes>::computeSimpleDistance(demandA, demandB);
 
 				for (size_t node = 0; node < Nodes; node++)
 					distanceFunction[dayA.first][dayB.first][node] = distances[node];

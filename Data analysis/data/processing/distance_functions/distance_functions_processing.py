@@ -6,39 +6,7 @@ import numpy as np
 from data.model.distance_functions.day_distance import DayDistance
 from data.model.distance_functions.distance_function import DistanceFunction
 from data.model.learning_examples.learning_example import LearningExample
-
-
-def prepare_learning_sets(examples: List[LearningExample]):
-    return (
-        np.array([
-            example.features
-            for example in examples
-        ]),
-        np.array([
-            example.diff_value
-            for example in examples
-        ])
-    )
-
-
-def learn_distance_function(train_examples: List[LearningExample],
-                            test_examples: List[LearningExample],
-                            distance_predictor_builder,
-                            distance_predictor_applier):
-    (x_train, y_train) = prepare_learning_sets(train_examples)
-    (x_test, y_test) = prepare_learning_sets(test_examples)
-
-    distance_predictor = distance_predictor_builder(x_train, y_train)
-
-    y_train_prediction = distance_predictor_applier(distance_predictor, x_train)
-    y_test_prediction = distance_predictor_applier(distance_predictor, x_test)
-
-    error_train = np.mean(np.absolute(np.array(y_train) - np.array(y_train_prediction)))
-    error_test = np.mean(np.absolute(np.array(y_test) - np.array(y_test_prediction)))
-
-    print(str(error_train) + '\t' + str(error_test))
-
-    return distance_predictor
+from data.processing.learning.function_learning import learn_function
 
 
 def process_distance_functions(learning_examples: List[Dict[str, Dict[str, LearningExample]]],
@@ -63,7 +31,7 @@ def process_distance_functions(learning_examples: List[Dict[str, Dict[str, Learn
         ]
 
         distance_functions.append(
-            learn_distance_function(train_set, test_set, distance_predictor_builder, distance_predictor_applier)
+            learn_function(train_set, test_set, distance_predictor_builder, distance_predictor_applier)
         )
 
     return [

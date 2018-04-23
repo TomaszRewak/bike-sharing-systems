@@ -35,5 +35,8 @@
     <ClInclude Include="flow-prediction-simulation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="prediction\distance-analysis.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
