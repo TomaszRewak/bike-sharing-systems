@@ -25,7 +25,7 @@ def render_city_network(
         for station in mapped_stations
     ]
 
-    nc = ['r' if node in station_nodes else '#336699' for node in city]
+    nc = ['r' if node in station_nodes else '#5588bb' for node in city]
     ns = [50 if node in station_nodes else 8 for node in city]
 
     fig, ax = osmnx.plot_graph(city, node_size=ns, node_color=nc, node_zorder=2, show=False, close=False)
@@ -39,12 +39,12 @@ def render_city_network(
             city.nodes[station_mapping[station_connection.destination]]['y'],
         ], 'k', lw=2)
 
-    for station in stations:
-        ax.text(
-            station.longitude,
-            station.latitude,
-            station.name,
-            color='purple'
-        )
+    # for station in stations:
+    #     ax.text(
+    #         station.longitude,
+    #         station.latitude,
+    #         station.name,
+    #         color='purple'
+    #     )
 
     pyplot.show()

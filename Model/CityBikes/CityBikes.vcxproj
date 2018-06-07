@@ -128,12 +128,22 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="processes\demand-examples.hpp" />
+    <ClInclude Include="processes\demand-prediction-test-global.hpp" />
+    <ClInclude Include="processes\demand-prediction-test-weighted.hpp" />
     <ClInclude Include="processes\distance-examples.hpp" />
-    <ClInclude Include="processes\experiment.hpp" />
+    <ClInclude Include="processes\demand-prediction-test-not-weighted.hpp" />
     <ClInclude Include="processes\flow-examples.hpp" />
     <ClInclude Include="processes\flow-test.hpp" />
     <ClInclude Include="processes\model-test.hpp" />
-    <ClInclude Include="processes\prediction-test.hpp" />
+    <ClInclude Include="processes\prediction-test-hard-avg.hpp" />
+    <ClInclude Include="processes\prediction-test-hard.hpp" />
+    <ClInclude Include="processes\prediction-test-neighbourhood-size.hpp" />
+    <ClInclude Include="processes\prediction-test-window-size-without-ongoing.hpp" />
+    <ClInclude Include="processes\prediction-test-window-size.hpp" />
+    <ClInclude Include="processes\redistribution-test-clients.hpp" />
+    <ClInclude Include="processes\redistribution-test-configuration.hpp" />
+    <ClInclude Include="processes\redistribution-test-units.hpp" />
+    <ClInclude Include="processes\redistribution-test-window-size.hpp" />
     <ClInclude Include="processes\redistribution-test.hpp" />
     <ClInclude Include="processes\static-analysis-test.hpp" />
   </ItemGroup>

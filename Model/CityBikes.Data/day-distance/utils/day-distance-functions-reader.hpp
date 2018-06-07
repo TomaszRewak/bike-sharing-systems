@@ -43,7 +43,7 @@ namespace CityBikes::Data::DayDistance::Utils
 						double distance;
 						file >> distance;
 
-						distanceFunction[functionDay][distanceDay][node] = distance;
+						distanceFunction[functionDay][distanceDay][node] = std::max(distance, 0.);
 					}
 				}
 			}

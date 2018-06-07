@@ -14,6 +14,7 @@ namespace CityBikes::Model
 	{
 	private:
 		size_t timeFrame = 0;
+		size_t unhandledCustomers = 0;
 
 		Data::FillLevel::FillLevelPredictionFrame<Nodes> currentState;
 
@@ -46,13 +47,17 @@ namespace CityBikes::Model
 
 					ongoingInstances.push_back(instance);
 				}
+				else
+				{
+					unhandledCustomers++;
+				}
 			}
 
 			// apply pending returns
 
 			DataProcessing::Flow::Sorting::sortInstancesDescendingByEndTime(ongoingInstances);
 
-			while (ongoingInstances.size() && ongoingInstances.back().destination.timeFrame == timeFrame)
+			while (ongoingInstances.size() && ongoingInstances.back().destination.timeFrame <= timeFrame)
 			{
 				Data::Flow::FlowInstance instance = ongoingInstances.back();
 				ongoingInstances.pop_back();
@@ -79,6 +84,7 @@ namespace CityBikes::Model
 		}
 
 		size_t getTimeFrame() { return timeFrame; }
+		size_t getUnhandledCustomers() { return unhandledCustomers; }
 		Data::FillLevel::FillLevelPredictionFrame<Nodes>& getCurrentState() { return currentState; }
 		const std::vector<Data::Flow::FlowInstance>& getUpcomingInstances() { return upcomingInstances; }
 		const std::vector<Data::Flow::FlowInstance>& getOngoingInstances() { return ongoingInstances; }

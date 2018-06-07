@@ -40,6 +40,8 @@ def simplify_city_network(
         for (station_a, station_b) in connections
     ]
 
+    print(len(connections))
+
     mapping_reversal = {
         mapped_station.network_node: mapped_station.station_name
         for mapped_station in mapped_stations

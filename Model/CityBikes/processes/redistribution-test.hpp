@@ -21,6 +21,7 @@ namespace CityBikes::Processes
 		auto rides = Data::Rides::Utils::RideReader::readData("../../Resources/processed/rides.rides");
 		auto flowMatrices = Data::FlowTime::Utils::FlowTimeMatricesReader::readData<Nodes>("../../Resources/processed/time_matrices.time", timeFrames);
 		auto distanceFunctions = Data::DayDistance::Utils::DayDistanceFunctionReader::readData("../../Resources/learning/nn.model");
+		auto simpleDistanceFunctions = Data::DayDistance::Utils::DayDistanceFunctionReader<Nodes>::readData("../../Resources/learning/simple.model");
 		auto examples = DataProcessing::Rides::RidesMapper::map(rides, timeFrames);
 
 		Data::FillLevel::FillLevelPredictionFrame<Nodes> initialState;
@@ -55,6 +56,7 @@ namespace CityBikes::Processes
 			std::vector<Data::Flow::FlowAction> randomDayActions;
 			std::vector<Data::Flow::FlowAction> otherDaysActions;
 			std::vector<Data::Flow::FlowAction> selectedDaysActions;
+			std::vector<Data::Flow::FlowAction> simplySelectedDaysActions;
 			std::vector<Data::Flow::FlowAction> sameDayActions;
 
 			{
@@ -87,7 +89,26 @@ namespace CityBikes::Processes
 					[](auto a, auto b) { return a.second < b.second; }
 				);
 
-				size_t selectedInstances = 100;
+				size_t selectedInstances = 40;
+
+				for (size_t i = 0; i < selectedInstances; i++)
+					for (const Data::Flow::FlowInstance& instance : otherExamples[sortedDays[i].first])
+						selectedDaysActions.push_back(Data::Flow::FlowAction(instance, 1. / selectedInstances));
+			}
+			
+			{
+				std::vector<std::pair<Data::Time::Day, double>> sortedDays;
+
+				for (auto otherExample : otherExamples)
+					sortedDays.push_back(std::make_pair(otherExample.first, simpleDistanceFunctions[example.first][otherExample.first]));
+
+				std::sort(
+					sortedDays.begin(),
+					sortedDays.end(),
+					[](auto a, auto b) { return a.second < b.second; }
+				);
+
+				size_t selectedInstances = 40;
 
 				for (size_t i = 0; i < selectedInstances; i++)
 					for (const Data::Flow::FlowInstance& instance : otherExamples[sortedDays[i].first])

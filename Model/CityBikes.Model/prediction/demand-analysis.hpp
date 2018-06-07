@@ -49,7 +49,6 @@ namespace CityBikes::Model::Prediction
 			return computeCumulativeDemand(flowActions, timeFrames);
 		}
 
-
 		static void fixCumulativeDemandPrediction(Data::Demand::CumulativeDemandPrediction<Nodes>& cumulativeDemandPrediction)
 		{
 			for (size_t timeFrame = 1; timeFrame < cumulativeDemandPrediction.size(); timeFrame++)
@@ -57,6 +56,20 @@ namespace CityBikes::Model::Prediction
 					cumulativeDemandPrediction[timeFrame][node] = std::max(
 						cumulativeDemandPrediction[timeFrame][node], 
 						cumulativeDemandPrediction[timeFrame - 1][node]);
+		}
+
+		static Data::Demand::CumulativeDemandPrediction<Nodes> accumulateDemand(Data::Demand::DemandPrediction<Nodes> demandPrediction)
+		{
+			Data::Demand::CumulativeDemandPrediction<Nodes> cumulativeDemandPrediction(demandPrediction.size());
+
+			for (size_t node = 0; node < Nodes; node++)
+				cumulativeDemandPrediction[0][node] = demandPrediction[0][node];
+
+			for (size_t timeFrame = 1; timeFrame < demandPrediction.size(); timeFrame++)
+				for (size_t node = 0; node < Nodes; node++)
+					cumulativeDemandPrediction[timeFrame][node] = cumulativeDemandPrediction[timeFrame - 1][node] + demandPrediction[timeFrame][node];
+
+			return cumulativeDemandPrediction;
 		}
 
 		static Data::Demand::DemandPrediction<Nodes> decumulateDemand(Data::Demand::CumulativeDemandPrediction<Nodes> cumulativeDemandPrediction)

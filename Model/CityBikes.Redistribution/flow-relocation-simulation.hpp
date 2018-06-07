@@ -22,6 +22,7 @@ namespace CityBikes::Redistribution
 		size_t scheduleLength;
 		size_t scheduleExamples;
 
+		size_t unhandledCustomers;
 
 	public:
 		FlowRelocationSimulation(
@@ -49,6 +50,7 @@ namespace CityBikes::Redistribution
 			size_t timeFrames
 		)
 		{
+			unhandledCustomers = 0;
 			Data::FillLevel::FillLevelPrediction<Nodes> result;
 
 			while (flowDistributionSimulation.getTimeFrame() < timeFrames)
@@ -107,8 +109,11 @@ namespace CityBikes::Redistribution
 				result.push_back(flowDistributionSimulation.getCurrentState());
 			}
 
+			unhandledCustomers = flowDistributionSimulation.getUnhandledCustomers();
 			return result;
 		}
+
+		size_t getUnhandledCustomers() { return unhandledCustomers; }
 	};
 
 }

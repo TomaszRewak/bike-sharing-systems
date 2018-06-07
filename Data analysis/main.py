@@ -37,6 +37,7 @@ from data.processing.time_predictions.time_prediction_grouping import group_time
 from data.processing.time_predictions.time_prediction_request_preparing import prepare_time_prediction_requests
 from learning.decision_tree.decision_tree_learning import learn_decision_tree_function_config, \
     apply_decision_tree_function
+from learning.decision_tree.random_forest_learning import learn_random_forest_function_config
 from learning.linear.linear_learning import learn_linear_function_config, apply_linear_function
 from learning.nn.nn_learning import learn_nn_function, apply_nn_function, learn_nn_function_config
 from learning.sgd.sgd_learning import learn_sgd_function_config
@@ -143,7 +144,7 @@ def prepare_distance_learning_examples():
     distance_learning_examples = process_distance_learning_examples(
         distance_functions,
         features,
-        mix_feature_vectors)
+        concat_feature_vectors)
 
     pickle_distance_learning_examples('./resources/pickled/learning_examples.pickle', distance_learning_examples)
 
@@ -163,14 +164,12 @@ def experiment_with_distance_function():
     learning_examples = unpickle_demand_learning_examples('./resources/pickled/demand_learning_examples.pickled')
     test_days = load_days('../resources/configuration/test_examples.days')
 
-    for hidden_layer_size in [1, 2, 4, 8, 16, 32, 64, 128, 256]:
-        print('==========({0}, ), 60, tanh=========='.format(hidden_layer_size))
-
-        process_demand_function(
+    for test_day in test_days:
+        demand = process_demand_function(
             learning_examples,
-            test_days,
-            learn_nn_function_config((hidden_layer_size, ), 60, 'tanh'),
-            apply_nn_function
+            [test_day],
+            learn_linear_function_config(),
+            apply_linear_function
         )
 
 
@@ -215,7 +214,7 @@ def learn_nn_demand_function():
         apply_nn_function
     )
 
-    save_demand('../resources/processed/predicted_demand.demand', demand)
+    # save_demand('../resources/processed/predicted_demand.demand', demand) LOCK
 
 
 def get_time_predictions():
